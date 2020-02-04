@@ -48,6 +48,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:visibility="gone"
+        app:layout_behavior=".ui.custom.behaviors.SubmenuBehavior"
         app:layout_dodgeInsetEdges="bottom"
         tools:visibility="visible"/>
 

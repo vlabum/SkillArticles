@@ -14,8 +14,8 @@ class ArticleViewModel(private val articleId: String) :
 
     private val repository = ArticleRepository
 
-    private var isSearch: Boolean = false //TODO: этому тут не место, утащить в data, когда определимся со структурой
-    private var searchQuery: String? = null //TODO: этому тут не место, утащить в data, когда определимся со структурой
+    private var isSearch: Boolean = false
+    private var searchQuery: String? = null
 
     init {
         //подписываемся на наши источники данных
@@ -110,13 +110,6 @@ class ArticleViewModel(private val articleId: String) :
         toggleBookmark()
         val msg = if (currentState.isBookmark) Notify.TextMessage("Add to bookmarks")
         else Notify.TextMessage("Remove from bookmarks")
-//        {
-//            Notify.ActionMessage(
-//                "Remove bookmark",
-//                "Don't remove bookmark",
-//                toggleBookmark
-//            )
-//        }
         notify(msg)
     }
 
