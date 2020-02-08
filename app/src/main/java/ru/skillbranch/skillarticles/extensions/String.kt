@@ -1,7 +1,9 @@
 package ru.skillbranch.skillarticles.extensions
 
-fun String.indexesOf(query: String, ignoreCase: Boolean = true): List<Int> {
+fun String?.indexesOf(query: String, ignoreCase: Boolean = true): List<Int> {
     val list = arrayListOf<Int>()
+
+    if (this == null) return list
 
     var index: Int
     var startIndex = 0
