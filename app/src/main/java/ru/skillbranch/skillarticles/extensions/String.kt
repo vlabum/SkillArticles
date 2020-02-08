@@ -4,6 +4,7 @@ fun String?.indexesOf(query: String, ignoreCase: Boolean = true): List<Int> {
     val list = arrayListOf<Int>()
 
     if (this.isNullOrBlank()) return list
+    if (query.isBlank()) return list
 
     var index: Int
     var startIndex = 0
