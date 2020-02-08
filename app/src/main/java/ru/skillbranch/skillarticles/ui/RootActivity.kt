@@ -155,6 +155,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
 
         btn_result_down.setOnClickListener {
             if (search_view.hasFocus()) search_view.clearFocus()
+            tv_text_content.requestFocus()
             viewModel.handleDownResult()
         }
 
