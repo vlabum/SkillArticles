@@ -52,10 +52,10 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
     override val binding: ArticleBinding by lazy { ArticleBinding() }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    private val bgColor by AttrValue(R.attr.colorSecondary)
+    val bgColor by AttrValue(R.attr.colorSecondary)
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    private val fgColor by AttrValue(R.attr.colorOnSecondary)
+    val fgColor by AttrValue(R.attr.colorOnSecondary)
 
 
     override fun setupViews() {
