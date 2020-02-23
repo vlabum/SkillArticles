@@ -128,6 +128,7 @@ class EventObserver<E>(private val onEventUnhandledContent: (E) -> Unit) : Obser
 }
 
 sealed class Notify() {
+
     abstract val message: String
 
     data class TextMessage(override val message: String) : Notify()
