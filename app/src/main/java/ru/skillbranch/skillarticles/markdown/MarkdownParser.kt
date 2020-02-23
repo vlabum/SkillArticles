@@ -75,7 +75,7 @@ object MarkdownParser {
             var text: CharSequence
 
             //groups range or iterate by groups
-            val groups = 1..11 //TODO change group 9 when implement STRIKE_GROUP
+            val groups = 1..11
             var group = -1
             for (gr in groups) {
                 if (matcher.group(gr) != null) {
@@ -204,13 +204,17 @@ object MarkdownParser {
                     val rows = text.split("\n".toRegex())
                     if (rows.size == 1) {
                         val element =
-                            Element.BlockCode(Element.BlockCode.Type.MIDDLE, rows.first())
+                            Element.BlockCode(Element.BlockCode.Type.SINGLE, rows.first())
                         parents.add(element)
                     } else {
                         for (i in rows.indices) {
                             val element =
                                 Element.BlockCode(
-                                    Element.BlockCode.Type.MIDDLE,
+                                    when (i) {
+                                        0 -> Element.BlockCode.Type.START
+                                        rows.size - 1 -> Element.BlockCode.Type.END
+                                        else -> Element.BlockCode.Type.MIDDLE
+                                    },
                                     rows[i] + if (i < rows.size - 1) "\n" else ""
                                 )
                             parents.add(element)

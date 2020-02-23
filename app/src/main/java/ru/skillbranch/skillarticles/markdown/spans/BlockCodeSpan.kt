@@ -1,7 +1,9 @@
 package ru.skillbranch.skillarticles.markdown.spans
 
 import android.graphics.*
+import android.text.Spanned
 import android.text.style.ReplacementSpan
+import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
 import androidx.annotation.VisibleForTesting
@@ -24,6 +26,10 @@ class BlockCodeSpan(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var path = Path()
 
+    private var fm: Paint.FontMetricsInt? = null
+    private var originAscent = 0
+    private var originDescent = 0
+
     override fun getSize(
         paint: Paint,
         text: CharSequence?,
@@ -31,6 +37,29 @@ class BlockCodeSpan(
         end: Int,
         fm: Paint.FontMetricsInt?
     ): Int {
+        fm?.let {
+            this.fm = fm
+            originAscent = fm.ascent
+            originDescent = fm.descent
+            when (type) {
+                Element.BlockCode.Type.SINGLE -> {
+                    fm.ascent = (fm.ascent * 0.85f - 2 * padding).toInt()
+                    fm.descent = (fm.descent * 0.85f + 2 * padding).toInt()
+                }
+                Element.BlockCode.Type.START -> {
+                    fm.ascent = (fm.ascent * 0.85f - 2 * padding).toInt()
+                    fm.descent = (fm.descent * 0.85f).toInt()
+                }
+                Element.BlockCode.Type.MIDDLE -> {
+                    fm.ascent = (fm.ascent * 0.85f).toInt()
+                    fm.descent = (fm.descent * 0.85f).toInt()
+                }
+                Element.BlockCode.Type.END -> {
+                    fm.ascent = (fm.ascent * 0.85f).toInt()
+                    fm.descent = (fm.descent * 0.85f + 2 * padding).toInt()
+                }
+            }
+        }
         return 0
     }
 
@@ -45,14 +74,73 @@ class BlockCodeSpan(
         bottom: Int,
         paint: Paint
     ) {
-        paint.forBackground {
-            rect.set(0f, top.toFloat(), canvas.width.toFloat(), bottom.toFloat())
-            canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
+
+        when (type) {
+            Element.BlockCode.Type.SINGLE -> {
+                paint.forBackground {
+                    rect.set(0f, top.toFloat(), canvas.width.toFloat(), bottom.toFloat())
+                    canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
+                }
+            }
+            Element.BlockCode.Type.START -> {
+                paint.forBackground {
+                    path.reset()
+                    path.addRoundRect(
+                        RectF(
+                            0f,
+                            top.toFloat() + padding,
+                            canvas.width.toFloat(),
+                            bottom.toFloat()
+                        ),
+                        floatArrayOf(cornerRadius, cornerRadius, cornerRadius, cornerRadius, 0f, 0f, 0f, 0f),
+                        Path.Direction.CW)
+                    canvas.drawPath(path, paint)
+                }
+            }
+            Element.BlockCode.Type.END -> {
+                paint.forBackground {
+                    path.reset()
+                    path.addRoundRect(
+                        RectF(
+                            0f,
+                            top.toFloat(),
+                            canvas.width.toFloat(),
+                            bottom.toFloat() - padding
+                        ),
+                        floatArrayOf(0f, 0f, 0f, 0f, cornerRadius, cornerRadius, cornerRadius, cornerRadius),
+                        Path.Direction.CW)
+                    canvas.drawPath(path, paint)
+                }
+            }
+            Element.BlockCode.Type.MIDDLE -> {
+                paint.forBackground {
+                    path.reset()
+                    path.addRoundRect(
+                        RectF(
+                            0f,
+                            top.toFloat(),
+                            canvas.width.toFloat(),
+                            bottom.toFloat()
+                        ),
+                        floatArrayOf(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f),
+                        Path.Direction.CW)
+                    canvas.drawPath(path, paint)
+                }
+            }
+
         }
 
         paint.forText {
             canvas.drawText(text ?: "", start, end, x + padding, y.toFloat(), paint)
         }
+
+
+        fm?.let {
+            //if (type == Element.BlockCode.Type.SINGLE || type == Element.BlockCode.Type.END)
+            it.ascent = originAscent
+            it.descent = originDescent
+        }
+        fm = null
     }
 
     private inline fun Paint.forText(block: () -> Unit) {
@@ -75,7 +163,6 @@ class BlockCodeSpan(
     private inline fun Paint.forBackground(block: () -> Unit) {
         val oldColor = color
         val oldStyle = style
-
         color = bgColor
         style = Paint.Style.FILL
 
@@ -83,7 +170,6 @@ class BlockCodeSpan(
 
         color = oldColor
         style = oldStyle
-
     }
 
 }
