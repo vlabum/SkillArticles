@@ -1,9 +1,7 @@
 package ru.skillbranch.skillarticles.markdown.spans
 
 import android.graphics.*
-import android.text.Spanned
 import android.text.style.ReplacementSpan
-import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
 import androidx.annotation.VisibleForTesting
@@ -26,9 +24,9 @@ class BlockCodeSpan(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var path = Path()
 
-    private var fm: Paint.FontMetricsInt? = null
-    private var originAscent = 0
-    private var originDescent = 0
+//    private var fm: Paint.FontMetricsInt? = null
+//    private var originAscent = 0
+//    private var originDescent = 0
 
     override fun getSize(
         paint: Paint,
@@ -38,25 +36,25 @@ class BlockCodeSpan(
         fm: Paint.FontMetricsInt?
     ): Int {
         fm?.let {
-            this.fm = fm
-            originAscent = fm.ascent
-            originDescent = fm.descent
+            //            this.fm = fm
+//            originAscent = fm.ascent
+//            originDescent = fm.descent
             when (type) {
                 Element.BlockCode.Type.SINGLE -> {
-                    fm.ascent = (fm.ascent * 0.85f - 2 * padding).toInt()
-                    fm.descent = (fm.descent * 0.85f + 2 * padding).toInt()
+                    fm.ascent = (paint.ascent() - 2 * padding).toInt()
+                    fm.descent = (paint.descent() + 2 * padding).toInt()
                 }
                 Element.BlockCode.Type.START -> {
-                    fm.ascent = (fm.ascent * 0.85f - 2 * padding).toInt()
-                    fm.descent = (fm.descent * 0.85f).toInt()
+                    fm.ascent = (paint.ascent() - 2 * padding).toInt()
+                    fm.descent = (paint.descent()).toInt()
                 }
                 Element.BlockCode.Type.MIDDLE -> {
-                    fm.ascent = (fm.ascent * 0.85f).toInt()
-                    fm.descent = (fm.descent * 0.85f).toInt()
+                    fm.ascent = (paint.ascent()).toInt()
+                    fm.descent = (paint.descent()).toInt()
                 }
                 Element.BlockCode.Type.END -> {
-                    fm.ascent = (fm.ascent * 0.85f).toInt()
-                    fm.descent = (fm.descent * 0.85f + 2 * padding).toInt()
+                    fm.ascent = (paint.ascent()).toInt()
+                    fm.descent = (paint.descent() + 2 * padding).toInt()
                 }
             }
         }
@@ -92,8 +90,18 @@ class BlockCodeSpan(
                             canvas.width.toFloat(),
                             bottom.toFloat()
                         ),
-                        floatArrayOf(cornerRadius, cornerRadius, cornerRadius, cornerRadius, 0f, 0f, 0f, 0f),
-                        Path.Direction.CW)
+                        floatArrayOf(
+                            cornerRadius,
+                            cornerRadius,
+                            cornerRadius,
+                            cornerRadius,
+                            0f,
+                            0f,
+                            0f,
+                            0f
+                        ),
+                        Path.Direction.CW
+                    )
                     canvas.drawPath(path, paint)
                 }
             }
@@ -107,8 +115,18 @@ class BlockCodeSpan(
                             canvas.width.toFloat(),
                             bottom.toFloat() - padding
                         ),
-                        floatArrayOf(0f, 0f, 0f, 0f, cornerRadius, cornerRadius, cornerRadius, cornerRadius),
-                        Path.Direction.CW)
+                        floatArrayOf(
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            cornerRadius,
+                            cornerRadius,
+                            cornerRadius,
+                            cornerRadius
+                        ),
+                        Path.Direction.CW
+                    )
                     canvas.drawPath(path, paint)
                 }
             }
@@ -123,7 +141,8 @@ class BlockCodeSpan(
                             bottom.toFloat()
                         ),
                         floatArrayOf(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f),
-                        Path.Direction.CW)
+                        Path.Direction.CW
+                    )
                     canvas.drawPath(path, paint)
                 }
             }
@@ -135,12 +154,12 @@ class BlockCodeSpan(
         }
 
 
-        fm?.let {
-            //if (type == Element.BlockCode.Type.SINGLE || type == Element.BlockCode.Type.END)
-            it.ascent = originAscent
-            it.descent = originDescent
-        }
-        fm = null
+//        fm?.let {
+//            //if (type == Element.BlockCode.Type.SINGLE || type == Element.BlockCode.Type.END)
+//            it.ascent = originAscent
+//            it.descent = originDescent
+//        }
+//        fm = null
     }
 
     private inline fun Paint.forText(block: () -> Unit) {
