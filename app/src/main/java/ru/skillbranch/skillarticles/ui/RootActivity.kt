@@ -15,12 +15,14 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.text.getSpans
 import androidx.lifecycle.ViewModelProviders
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_root.*
 import kotlinx.android.synthetic.main.layout_bottombar.*
 import kotlinx.android.synthetic.main.layout_submenu.*
 import kotlinx.android.synthetic.main.search_view_layout.*
 import ru.skillbranch.skillarticles.R
+import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.setMarginOptionally
 import ru.skillbranch.skillarticles.ui.custom.markdown.MarkdownBuilder
@@ -41,21 +43,9 @@ import ru.skillbranch.skillarticles.viewmodels.base.ViewModelFactory
 class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
 
     override val layout: Int = R.layout.activity_root
-    override val viewModel: ArticleViewModel by lazy {
-        val vmFactory = ViewModelFactory("0")
-        ViewModelProviders.of(this, vmFactory).get(ArticleViewModel::class.java)
-    }
-
-    // делаем ленивую инициализацию, т.к. binding будем вызывать когда разметка уже создана
+    override val viewModel: ArticleViewModel by provideViewModel("0")
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     override val binding: ArticleBinding by lazy { ArticleBinding() }
-
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val bgColor by AttrValue(R.attr.colorSecondary)
-
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val fgColor by AttrValue(R.attr.colorOnSecondary)
-
 
     override fun setupViews() {
         setupToolBar()
@@ -148,14 +138,14 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
         btn_settings.setOnClickListener { viewModel.handleToggleMenu() }
 
         btn_result_up.setOnClickListener {
-            if (search_view.hasFocus()) search_view.clearFocus()
             if (!tv_text_content.hasFocus()) tv_text_content.requestFocus()
+            if (search_view.hasFocus()) search_view.clearFocus()
             viewModel.handleUpResult()
         }
 
         btn_result_down.setOnClickListener {
-            if (search_view.hasFocus()) search_view.clearFocus()
             if (!tv_text_content.hasFocus()) tv_text_content.requestFocus()
+            if (search_view.hasFocus()) search_view.clearFocus()
             viewModel.handleDownResult()
         }
 
@@ -163,6 +153,9 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
             viewModel.handleSearchMode(false)
             invalidateOptionsMenu()
         }
+    }
+
+    private fun setupCopyListener() {
     }
 
     private fun setupToolBar() {
@@ -183,53 +176,47 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
     /*
      * IArticleView
      */
-    override fun renderSearchResult(searchResult: List<Pair<Int, Int>>) {
-        val content = tv_text_content.text as Spannable
+//    override fun renderSearchResult(searchResult: List<Pair<Int, Int>>) {
+//        val content = tv_text_content.text as Spannable
+//
+//        clearSearchResult()
+//
+//        searchResult.forEach { (start, end) ->
+//            content.setSpan(
+//                SearchSpan(),
+//                start,
+//                end,
+//                SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
+//            )
+//        }
+//        // scroll to first posinion element
+//        renderSearchPosition(0)
+//    }
 
-        clearSearchResult()
+//    override fun renderSearchPosition(searchPosition: Int) {
+//        val content = tv_text_content.text as Spannable
+//        val spans = content.getSpans<SearchSpan>()
+//
+//        //clear last search position
+//        content.getSpans<SearchFocusSpan>().forEach { content.removeSpan(it) }
+//
+//        if (spans.isNotEmpty()) {
+//            val result = spans[searchPosition]
+//            Selection.setSelection(content, content.getSpanStart(result))
+//            content.setSpan(
+//                SearchFocusSpan(),
+//                content.getSpanStart(result),
+//                content.getSpanEnd(result),
+//                SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
+//            )
+//        }
+//    }
 
-        searchResult.forEach { (start, end) ->
-            content.setSpan(
-                SearchSpan(
-                    bgColor,
-                    fgColor
-                ),
-                start,
-                end,
-                SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-        // scroll to first posinion element
-        renderSearchPosition(0)
-    }
-
-    override fun renderSearchPosition(searchPosition: Int) {
-        val content = tv_text_content.text as Spannable
-        val spans = content.getSpans<SearchSpan>()
-
-        //clear last search position
-        content.getSpans<SearchFocusSpan>().forEach { content.removeSpan(it) }
-
-        if (spans.isNotEmpty()) {
-            val result = spans[searchPosition]
-            Selection.setSelection(content, content.getSpanStart(result))
-            content.setSpan(
-                SearchFocusSpan(
-                    bgColor,
-                    fgColor
-                ),
-                content.getSpanStart(result),
-                content.getSpanEnd(result),
-                SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-    }
-
-    override fun clearSearchResult() {
-        val content = tv_text_content.text as Spannable
-        content.getSpans<SearchSpan>()
-            .forEach { content.removeSpan(it) }
-    }
+//    override fun clearSearchResult() {
+//        val content = tv_text_content.text as Spannable
+//        content.getSpans<SearchSpan>()
+//            .forEach { content.removeSpan(it) }
+//    }
 
     override fun showSearchBar() {
         bottombar.setSearchState(true)
@@ -281,19 +268,31 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
         }
 
         var isSearch: Boolean by ObserveProp(false) {
-            if (it) showSearchBar() else hideSearchBar()
+            if (it) {
+                showSearchBar()
+                with(toolbar) {
+                    (layoutParams as AppBarLayout.LayoutParams).scrollFlags =
+                        AppBarLayout.LayoutParams.SCROLL_FLAG_NO_SCROLL
+
+
+                }
+            } else {
+                hideSearchBar()
+                with(toolbar) {
+                    (layoutParams as AppBarLayout.LayoutParams).scrollFlags =
+                        AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or
+                                AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED
+                }
+            }
         }
 
         private var searchResults: List<Pair<Int, Int>> by ObserveProp(emptyList())
         private var searchPosition: Int by ObserveProp(0)
 
-        private var content: String by ObserveProp("loading") {
-            MarkdownBuilder(this@RootActivity)
-                .markdownToSpan(it)
-                .run {
-                    tv_text_content.setText(this, TextView.BufferType.SPANNABLE)
-                }
-            tv_text_content.movementMethod = ScrollingMovementMethod()
+        private var content: List<MarkdownElement> by ObserveProp(emptyList()) {
+            tv_text_content.isLoading = it.isEmpty()
+            tv_text_content.setContent(it)
+            if (it.isNotEmpty()) setupCopyListener()
         }
 
         override fun onFinishInflate() {
@@ -305,12 +304,12 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
             ) { ilc, iss, sr, sp ->
 
                 if (!ilc && iss) { // контент загружен и в режиме поиска
-                    renderSearchResult(sr)
-                    renderSearchPosition(sp)
+                    tv_text_content.renderSearchResult(sr)
+                    tv_text_content.renderSearchPosition(sr.getOrNull(sp))
                 }
 
                 if (!ilc && !iss) {
-                    clearSearchResult()
+                    tv_text_content.clearSearchResult()
                 }
 
                 bottombar.bindSearchInfo(sr.size, sp)
@@ -329,7 +328,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
             if (data.title != null) title = data.title
             if (data.category != null) category = data.category
             if (data.categoryIcon != null) categoryIcon = data.categoryIcon as Int
-            if (!data.content.isNullOrEmpty()) content = data.content
+            content = data.content
 
             isLoadingContent = data.isLoadingContent
             isSearch = data.isSearch

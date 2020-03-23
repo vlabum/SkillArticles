@@ -6,7 +6,9 @@ import androidx.lifecycle.LiveData
 import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
+import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
 import ru.skillbranch.skillarticles.data.repositories.MarkdownParser
+import ru.skillbranch.skillarticles.data.repositories.clearContent
 import ru.skillbranch.skillarticles.extensions.data.toAppSettings
 import ru.skillbranch.skillarticles.extensions.data.toArticlePersonalInfo
 import ru.skillbranch.skillarticles.extensions.format
@@ -66,7 +68,7 @@ class ArticleViewModel(private val articleId: String) :
     }
 
     //load text from network
-    override fun getArticleContent(): LiveData<String?> {
+    override fun getArticleContent(): LiveData<List<MarkdownElement>?> {
         return repository.loadArticleContent(articleId)
     }
 
@@ -136,7 +138,8 @@ class ArticleViewModel(private val articleId: String) :
 
     override fun handleSearch(query: String?) {
         query ?: return
-        if (clearContent == null) clearContent = MarkdownParser.clear(currentState.content)
+        if (clearContent == null && currentState.content.isNotEmpty())
+            clearContent = currentState.content.clearContent()
         val result = clearContent //currentState.content
             .indexesOf(query)
             .map { it to it + query.length }
@@ -173,7 +176,7 @@ data class ArticleState(
     val date: String? = null, //дата публикации
     val author: Any? = null, //автор статьи
     val poster: String? = null, //обложка статьи
-    val content: String? = null, //контент
+    val content: List<MarkdownElement> = emptyList(), //контент
     val reviews: List<Any> = emptyList() //комментарии
 ) : IViewModelState {
     override fun save(outState: Bundle) {
