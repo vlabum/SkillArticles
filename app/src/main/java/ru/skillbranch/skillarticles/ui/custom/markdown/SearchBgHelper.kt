@@ -18,7 +18,7 @@ import ru.skillbranch.skillarticles.ui.custom.spans.SearchFocusSpan
 import ru.skillbranch.skillarticles.ui.custom.spans.SearchSpan
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-class SearchBgHelper(
+open class SearchBgHelper(
     context: Context,
     private val focusListener: ((Int, Int) -> Unit)? = null,
     mockDrawable: Drawable? = null //for mock drawable
@@ -121,7 +121,7 @@ class SearchBgHelper(
                         || spanEnd in headerSpans[0].firstLineBounds
                     ) headerSpans[0].topExtraPadding else 0
 
-                topExtraPadding =
+                bottomExtraPadding =
                     if (spanStart in headerSpans[0].lastLineBounds
                         || spanEnd in headerSpans[0].lastLineBounds
                     ) headerSpans[0].bottomExtraPadding else 0

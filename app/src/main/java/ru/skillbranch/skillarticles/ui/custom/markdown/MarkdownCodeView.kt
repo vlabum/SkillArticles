@@ -163,13 +163,13 @@ class MarkdownCodeView private constructor(
         val usedHeight = paddingTop
         val bodyWith = r - l - paddingLeft - paddingRight
         val left = paddingLeft
-        val rigth = paddingLeft + bodyWith
+        val right = paddingLeft + bodyWith
 
         if (isSingleLine) {
             val iconHeight = (b - t - iconSize) / 2
 
             iv_copy.layout(
-                rigth - iconSize,
+                right - iconSize,
                 iconHeight,
                 right,
                 iconHeight + iconSize
@@ -183,7 +183,7 @@ class MarkdownCodeView private constructor(
             )
         } else {
             iv_copy.layout(
-                rigth - iconSize,
+                right - iconSize,
                 usedHeight,
                 right,
                 usedHeight + iconSize
@@ -200,7 +200,7 @@ class MarkdownCodeView private constructor(
         sv_scroll.layout(
             left,
             usedHeight,
-            rigth,
+            right,
             usedHeight + sv_scroll.measuredHeight
         )
     }

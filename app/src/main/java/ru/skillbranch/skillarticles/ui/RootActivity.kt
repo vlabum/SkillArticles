@@ -172,52 +172,6 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
         }
     }
 
-
-    /*
-     * IArticleView
-     */
-//    override fun renderSearchResult(searchResult: List<Pair<Int, Int>>) {
-//        val content = tv_text_content.text as Spannable
-//
-//        clearSearchResult()
-//
-//        searchResult.forEach { (start, end) ->
-//            content.setSpan(
-//                SearchSpan(),
-//                start,
-//                end,
-//                SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
-//            )
-//        }
-//        // scroll to first posinion element
-//        renderSearchPosition(0)
-//    }
-
-//    override fun renderSearchPosition(searchPosition: Int) {
-//        val content = tv_text_content.text as Spannable
-//        val spans = content.getSpans<SearchSpan>()
-//
-//        //clear last search position
-//        content.getSpans<SearchFocusSpan>().forEach { content.removeSpan(it) }
-//
-//        if (spans.isNotEmpty()) {
-//            val result = spans[searchPosition]
-//            Selection.setSelection(content, content.getSpanStart(result))
-//            content.setSpan(
-//                SearchFocusSpan(),
-//                content.getSpanStart(result),
-//                content.getSpanEnd(result),
-//                SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
-//            )
-//        }
-//    }
-
-//    override fun clearSearchResult() {
-//        val content = tv_text_content.text as Spannable
-//        content.getSpans<SearchSpan>()
-//            .forEach { content.removeSpan(it) }
-//    }
-
     override fun showSearchBar() {
         bottombar.setSearchState(true)
         scroll.setMarginOptionally(bottom = dpToIntPx(56))
