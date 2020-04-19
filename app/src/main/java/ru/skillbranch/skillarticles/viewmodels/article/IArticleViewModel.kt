@@ -1,9 +1,10 @@
-package ru.skillbranch.skillarticles.viewmodels
+package ru.skillbranch.skillarticles.viewmodels.article
 
 import androidx.lifecycle.LiveData
 import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
+import ru.skillbranch.skillarticles.viewmodels.base.Notify
 
 interface IArticleViewModel {
     /**
@@ -81,4 +82,13 @@ interface IArticleViewModel {
      * searchView при изменении конфигурации (пересоздании активити)
      */
     fun handleSearch(query: String?)
+
+    fun handleUpResult()
+
+    fun handleDownResult()
+
+    fun handleCopyCode()
+
+    fun handleSendComment()
+
 }

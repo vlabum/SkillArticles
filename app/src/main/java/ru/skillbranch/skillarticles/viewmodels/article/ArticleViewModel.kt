@@ -1,13 +1,13 @@
-package ru.skillbranch.skillarticles.viewmodels
+package ru.skillbranch.skillarticles.viewmodels.article
 
 import android.os.Bundle
 import androidx.core.os.bundleOf
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.SavedStateHandle
 import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
 import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
-import ru.skillbranch.skillarticles.data.repositories.MarkdownParser
 import ru.skillbranch.skillarticles.data.repositories.clearContent
 import ru.skillbranch.skillarticles.extensions.data.toAppSettings
 import ru.skillbranch.skillarticles.extensions.data.toArticlePersonalInfo
@@ -15,10 +15,17 @@ import ru.skillbranch.skillarticles.extensions.format
 import ru.skillbranch.skillarticles.extensions.indexesOf
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
+import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
 
-class ArticleViewModel(private val articleId: String) :
-    BaseViewModel<ArticleState>(ArticleState()),
+class ArticleViewModel(
+    handle: SavedStateHandle,
+    private val articleId: String
+) :
+    BaseViewModel<ArticleState>(
+        handle,
+        ArticleState()
+    ),
     IArticleViewModel {
 
     private val repository = ArticleRepository
@@ -60,10 +67,12 @@ class ArticleViewModel(private val articleId: String) :
         subscribeOnDataSource(repository.getAppSettings()) { settings, state ->
             state.copy(
                 isDarkMode = settings.isDarkMode,
-                isBigText = settings.isBigText,
-                isSearch = isSearch,
-                searchQuery = searchQuery
+                isBigText = settings.isBigText
             )
+        }
+
+        subscribeOnDataSource(repository.isAuth()) { auth, state ->
+            state.copy(isAuth = auth)
         }
     }
 
@@ -82,17 +91,26 @@ class ArticleViewModel(private val articleId: String) :
         return repository.loadArticlePersonalInfo(articleId)
     }
 
-    override fun handleUpText() {
-        repository.updateSettings(currentState.toAppSettings().copy(isBigText = true))
-    }
-
     override fun handleNightMode() {
         val settings = currentState.toAppSettings()
         repository.updateSettings(settings.copy(isDarkMode = !settings.isDarkMode))
     }
 
+    override fun handleUpText() {
+        repository.updateSettings(currentState.toAppSettings().copy(isBigText = true))
+    }
+
     override fun handleDownText() {
         repository.updateSettings(currentState.toAppSettings().copy(isBigText = false))
+    }
+
+    override fun handleBookmark() {
+        val info = currentState.toArticlePersonalInfo()
+        repository.updateArticlePersonalInfo(info.copy(isBookmark = !info.isBookmark))
+
+        val msg = if (currentState.isBookmark) Notify.TextMessage("Add to bookmarks")
+        else Notify.TextMessage("Remove from bookmarks")
+        notify(msg)
     }
 
     override fun handleLike() {
@@ -109,17 +127,6 @@ class ArticleViewModel(private val articleId: String) :
                 toggleLike //handler function, if press "No, still like it" on snackbar, then toggle again
             )
         }
-        notify(msg)
-    }
-
-    override fun handleBookmark() {
-        val toggleBookmark = {
-            val info = currentState.toArticlePersonalInfo()
-            repository.updateArticlePersonalInfo(info.copy(isBookmark = !info.isBookmark))
-        }
-        toggleBookmark()
-        val msg = if (currentState.isBookmark) Notify.TextMessage("Add to bookmarks")
-        else Notify.TextMessage("Remove from bookmarks")
         notify(msg)
     }
 
@@ -146,12 +153,21 @@ class ArticleViewModel(private val articleId: String) :
         updateState { it.copy(searchQuery = query, searchResults = result, searchPosition = 0) }
     }
 
-    fun handleUpResult() {
+    override fun handleUpResult() {
         updateState { it.copy(searchPosition = it.searchPosition - 1) }
     }
 
-    fun handleDownResult() {
+    override fun handleDownResult() {
         updateState { it.copy(searchPosition = it.searchPosition + 1) }
+    }
+
+    override fun handleCopyCode() {
+        notify(Notify.TextMessage("Code copy to clipboard"))
+    }
+
+    override fun handleSendComment() {
+        if (!currentState.isAuth) navigate(NavigationCommand.StartLogin())
+        //TODO send comment
     }
 
 }
@@ -179,23 +195,19 @@ data class ArticleState(
     val content: List<MarkdownElement> = emptyList(), //контент
     val reviews: List<Any> = emptyList() //комментарии
 ) : IViewModelState {
-    override fun save(outState: Bundle) {
-        outState.putAll(
-            bundleOf(
-                "isSearch" to isSearch,
-                "searchQuery" to searchQuery,
-                "searchResults" to searchResults,
-                "searchPosition" to searchPosition
-            )
-        )
+    override fun save(outState: SavedStateHandle) {
+            outState.set("isSearch", isSearch)
+            outState.set("searchQuery", searchQuery)
+            outState.set("searchResults", searchResults)
+            outState.set("searchPosition", searchPosition)
     }
 
-    override fun restore(savedState: Bundle): IViewModelState {
+    override fun restore(savedState: SavedStateHandle): ArticleState {
         return copy (
-            isSearch = savedState["isSearch"] as Boolean,
-            searchQuery = savedState["searchQuery"] as? String,
-            searchResults = savedState["searchResults"] as List<Pair<Int, Int>>,
-            searchPosition = savedState["searchPosition"] as Int
+            isSearch = savedState["isSearch"] ?: false,
+            searchQuery = savedState["searchQuery"],
+            searchResults = savedState["searchResults"] ?: emptyList(),
+            searchPosition = savedState["searchPosition"] ?: 0
         )
     }
 }
