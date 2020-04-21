@@ -27,7 +27,7 @@ import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
 
 abstract class BaseActivity<T : BaseViewModel<out IViewModelState>> : AppCompatActivity() {
-    protected abstract val viewModel: T
+    abstract val viewModel: T
     protected abstract val layout: Int
     lateinit var navController: NavController
 

@@ -10,14 +10,18 @@ import kotlinx.android.synthetic.main.layout_bottombar.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.ui.base.BaseActivity
 import ru.skillbranch.skillarticles.viewmodels.RootViewModel
+import ru.skillbranch.skillarticles.viewmodels.article.ArticleViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
+import ru.skillbranch.skillarticles.viewmodels.base.ViewModelFactory
 
-class RootActivity : BaseActivity<RootViewModel>() {
+class RootActivity : BaseActivity<ArticleViewModel>() {
 
     override val layout: Int = R.layout.activity_root
-    override val viewModel: RootViewModel by viewModels()
+    override val viewModel: ArticleViewModel by viewModels() {
+        ViewModelFactory(owner = this, params = "0")
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
