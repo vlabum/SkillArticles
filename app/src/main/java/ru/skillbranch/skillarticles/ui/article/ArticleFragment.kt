@@ -132,7 +132,7 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             menuItem.expandActionView()
             searchView.setQuery(binding.searchQuery, false)
 
-            if (binding.isFocusedSearch()) searchView?.requestFocus()
+            if (binding.isFocusedSearch) searchView?.requestFocus()
             else searchView?.clearFocus()
         }
 

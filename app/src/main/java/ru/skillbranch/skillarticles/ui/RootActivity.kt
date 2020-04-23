@@ -1,6 +1,9 @@
 package ru.skillbranch.skillarticles.ui
 
+import android.app.Activity
 import android.os.Bundle
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -9,12 +12,12 @@ import kotlinx.android.synthetic.main.activity_root.*
 import kotlinx.android.synthetic.main.layout_bottombar.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.ui.base.BaseActivity
-import ru.skillbranch.skillarticles.viewmodels.RootViewModel
 import ru.skillbranch.skillarticles.viewmodels.article.ArticleViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
 import ru.skillbranch.skillarticles.viewmodels.base.ViewModelFactory
+
 
 class RootActivity : BaseActivity<ArticleViewModel>() {
 
@@ -44,7 +47,7 @@ class RootActivity : BaseActivity<ArticleViewModel>() {
 
         navController.addOnDestinationChangedListener { controller, destination, arguments ->
             //if destination change set select bottom navigation item
-            nav_view.selectDestination(destination)
+            //nav_view.selectDestination(destination)
         }
     }
 
@@ -86,4 +89,5 @@ class RootActivity : BaseActivity<ArticleViewModel>() {
     override fun subscribeOnState(state: IViewModelState) {
         //DO something with state
     }
+
 }

@@ -1,9 +1,12 @@
 package ru.skillbranch.skillarticles.ui.base
 
+import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
@@ -87,6 +90,11 @@ abstract class BaseActivity<T : BaseViewModel<out IViewModelState>> : AppCompatA
                 )
             }
         }
+    }
+
+    fun hideKeyboard(view: View) {
+        val imm = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 }
 
