@@ -11,8 +11,10 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_root.*
 import kotlinx.android.synthetic.main.layout_bottombar.*
 import ru.skillbranch.skillarticles.R
+import ru.skillbranch.skillarticles.extensions.selectDestination
 import ru.skillbranch.skillarticles.ui.base.BaseActivity
 import ru.skillbranch.skillarticles.viewmodels.article.ArticleViewModel
+import ru.skillbranch.skillarticles.viewmodels.articles.ArticlesViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
@@ -41,13 +43,15 @@ class RootActivity : BaseActivity<ArticleViewModel>() {
         setupActionBarWithNavController(navController, appbarConfiguration)
         nav_view.setOnNavigationItemSelectedListener {
             //if click on bottom navigation item -> navigate to destination by item id
+            //идентификаторы в навигации и айтемах меню одинаковые => можно сделать так
             viewModel.navigate(NavigationCommand.To(it.itemId))
             true
         }
 
         navController.addOnDestinationChangedListener { controller, destination, arguments ->
             //if destination change set select bottom navigation item
-            //nav_view.selectDestination(destination)
+            //подсветить эелемент боттом бара, если на нем находимся
+            nav_view.selectDestination(destination)
         }
     }
 

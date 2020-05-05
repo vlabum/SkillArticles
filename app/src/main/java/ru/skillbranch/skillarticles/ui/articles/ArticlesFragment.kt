@@ -3,6 +3,7 @@ package ru.skillbranch.skillarticles.ui.articles
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_articles.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.data.ArticleItemData
@@ -16,8 +17,12 @@ import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 
 class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
     override val viewModel: ArticlesViewModel by viewModels()
-    override val layout: Int = R.layout.fragment_article
+    override val layout: Int = R.layout.fragment_articles
     override val binding: ArticlesBinding by lazy { ArticlesBinding() }
+
+//    private val rv_articles: RecyclerView? by lazy {
+//        view!!.findViewById(R.id.rv_articles) as RecyclerView
+//    }
 
     private val articlesAdapter = ArticlesAdapter { item ->
         val action = ArticlesFragmentDirections.actionNavArticlesToPageArticle(
@@ -35,7 +40,8 @@ class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
     }
 
     override fun setupViews() {
-        with(rv_articles) {
+        rv_articles ?: return
+        with(rv_articles!!) {
             layoutManager = LinearLayoutManager(context)
             adapter = articlesAdapter
             addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
@@ -43,7 +49,7 @@ class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
     }
 
     inner class ArticlesBinding : Binding() {
-        private var articles: List<ArticleItemData> by RenderProp(emptyList()) {
+        private var articles: List<ArticleItemData> by RenderProp(emptyList<ArticleItemData>()) {
             articlesAdapter.submitList(it)
         }
 
