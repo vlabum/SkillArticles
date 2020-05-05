@@ -26,6 +26,6 @@ fun View.selectDestination(destination: NavDestination) {
     bnv ?: return
     if (bnv.selectedItemId != destination.id) {
         val mi = bnv.menu.findItem(destination.id)
-        mi.setChecked(true)
+        mi?.setChecked(true)
     }
 }
