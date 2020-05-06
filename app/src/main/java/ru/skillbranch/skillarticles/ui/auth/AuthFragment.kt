@@ -1,6 +1,7 @@
 package ru.skillbranch.skillarticles.ui.auth
 
 import android.text.Spannable
+import android.widget.TextView
 import androidx.core.text.set
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
@@ -30,6 +31,6 @@ class AuthFragment : BaseFragment<AuthViewModel>() {
         }
         val color = root.attrValue(R.attr.colorPrimary)
         (tv_access_code.text as Spannable).let { it[0..it.length] = UnderlineSpan(color) }
-        (tv_privacy as Spannable).let { it[0..it.length] = UnderlineSpan(color) }
+        (tv_privacy.text as Spannable).let { it[0..it.length] = UnderlineSpan(color) }
     }
 }

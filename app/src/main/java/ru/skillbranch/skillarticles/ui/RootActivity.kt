@@ -44,7 +44,10 @@ class RootActivity : BaseActivity<ArticleViewModel>() {
         nav_view.setOnNavigationItemSelectedListener {
             //if click on bottom navigation item -> navigate to destination by item id
             //идентификаторы в навигации и айтемах меню одинаковые => можно сделать так
-            viewModel.navigate(NavigationCommand.To(it.itemId))
+            if (it.itemId == R.id.nav_profile && !viewModel.currentState.isAuth)
+                viewModel.navigate(NavigationCommand.StartLogin())
+            else
+                viewModel.navigate(NavigationCommand.To(it.itemId))
             true
         }
 
