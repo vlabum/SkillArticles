@@ -30,6 +30,8 @@ import ru.skillbranch.skillarticles.extensions.format
 
 import ru.skillbranch.skillarticles.extensions.setMarginOptionally
 import ru.skillbranch.skillarticles.ui.base.*
+import ru.skillbranch.skillarticles.ui.custom.ArticleSubmenu
+import ru.skillbranch.skillarticles.ui.custom.Bottombar
 import ru.skillbranch.skillarticles.ui.delegates.RenderProp
 import ru.skillbranch.skillarticles.viewmodels.article.ArticleState
 import ru.skillbranch.skillarticles.viewmodels.article.ArticleViewModel
@@ -69,9 +71,9 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
     }
 
     private val bottombar
-        get() = root.bottombar
+        get() = root.findViewById<Bottombar>(R.id.bottombar)
     private val submenu
-        get() = root.submenu
+        get() = root.findViewById<ArticleSubmenu>(R.id.submenu)
 
     override fun setupViews() {
         //window resize options
