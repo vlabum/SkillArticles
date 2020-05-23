@@ -48,10 +48,10 @@ fun Layout.getLineBottomWithoutSpacing(line: Int): Int {
 }
 
 fun ViewGroup.setPaddingOptionally(
-    left: Int = this.left,
-    top: Int = this.top,
-    right: Int = this.right,
-    bottom: Int = this.bottom
+    left: Int = this.paddingLeft,
+    top: Int = this.paddingTop,
+    right: Int = this.paddingRight,
+    bottom: Int = this.paddingBottom
 ) {
     setPadding(left, top, right, bottom)
 }

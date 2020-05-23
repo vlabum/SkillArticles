@@ -1,10 +1,9 @@
 package ru.skillbranch.skillarticles.viewmodels.article
 
 import androidx.lifecycle.LiveData
-import ru.skillbranch.skillarticles.data.ArticleData
-import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
+import ru.skillbranch.skillarticles.data.models.ArticleData
+import ru.skillbranch.skillarticles.data.models.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
-import ru.skillbranch.skillarticles.viewmodels.base.Notify
 
 interface IArticleViewModel {
     /**
@@ -89,6 +88,6 @@ interface IArticleViewModel {
 
     fun handleCopyCode()
 
-    fun handleSendComment()
+    fun handleSendComment(toString: String)
 
 }

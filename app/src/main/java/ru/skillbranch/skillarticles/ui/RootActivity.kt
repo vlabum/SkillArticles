@@ -56,13 +56,21 @@ class RootActivity : BaseActivity<ArticleViewModel>() {
             //if destination change set select bottom navigation item
             //подсветить эелемент боттом бара, если на нем находимся
             nav_view.selectDestination(destination)
+
+//            if(destination.id == R.id.nav_auth) nav_view.selectItem(arguments?.get("private_destination") as Int?)
+
+//            if (isAuth && destination.id == R.id.nav_auth) {
+//                controller.popBackStack()
+//                val private = arguments?.get("private_destination") as Int?
+//                if (private != null) controller.navigate(private)
+//            }
+
         }
     }
 
 
     override fun renderNotification(notify: Notify) {
         val snackbar = Snackbar.make(container, notify.message, Snackbar.LENGTH_LONG)
-
         snackbar.anchorView = findViewById<Bottombar>(R.id.bottombar) ?: nav_view
 
         when (notify) {
