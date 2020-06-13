@@ -15,6 +15,7 @@ object LocalDataHolder {
     private val articleInfo = MutableLiveData<ArticlePersonalInfo?>(null)
     private val settings = MutableLiveData(AppSettings())
     private val isAuth = MutableLiveData(false)
+
     val localArticleItems: MutableList<ArticleItemData> = mutableListOf()
     val localArticles: MutableMap<String, MutableLiveData<ArticleData>> = mutableMapOf()
 
