@@ -5,16 +5,25 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 // делегат, который будет отрисовывать наши проперти
-class RenderProp<T>(
+class RenderProp<T: Any>(
     var value: T, // значение поля
-    needInit: Boolean = true, // надо ли вызывать обработчик при инициализации или не надо
+    private val needInit: Boolean = true, // надо ли вызывать обработчик при инициализации или не надо
     private val onChange: ((T) -> Unit)? = null // обработчик, устанавливает значение для вьюхи при изменении нашего проперти
 ) : ReadWriteProperty<Binding, T> {
 
     private val listeners: MutableList<() -> Unit> = mutableListOf()
 
-    init {
+    fun bind() {
         if (needInit) onChange?.invoke(value)
+    }
+
+    operator fun provideDelegate(
+        thisRef: Binding,
+        prop: KProperty<*>
+    ): ReadWriteProperty<Binding, T> {
+        val delegate = RenderProp(value, needInit, onChange)
+        registerDelegate(thisRef, prop.name, delegate)
+        return delegate
     }
 
     override fun getValue(thisRef: Binding, property: KProperty<*>): T = value
@@ -30,6 +39,10 @@ class RenderProp<T>(
     //register additional listener
     fun addListener(listener: () -> Unit) {
         listeners.add(listener)
+    }
+
+    private fun registerDelegate(thisRef: Binding, name: String, delegate: RenderProp<T>) {
+        thisRef.delegates[name] = delegate
     }
 
 }
