@@ -23,7 +23,7 @@ import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 
-open class ArticlesFragment<T : BaseViewModel<out IViewModelState>> : BaseFragment<ArticlesViewModel>() {
+open class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
     override val viewModel: ArticlesViewModel by viewModels()
     override val layout: Int = R.layout.fragment_articles
     override val binding: ArticlesBinding by lazy { ArticlesBinding() }
@@ -44,7 +44,7 @@ open class ArticlesFragment<T : BaseViewModel<out IViewModelState>> : BaseFragme
 //        view!!.findViewById(R.id.rv_articles) as RecyclerView
 //    }
 
-    open val articlesAdapter = ArticlesAdapter(
+    val articlesAdapter = ArticlesAdapter(
         { item ->
             val action = ArticlesFragmentDirections.actionNavArticlesToPageArticle(
                 item.id,

@@ -44,7 +44,7 @@ object ArticlesRepository {
             .take(size)
             .toList()
 
-    private fun findArticlesByRangeBookmark(start: Int, size: Int) =
+    fun findArticlesByRangeBookmark(start: Int, size: Int) =
         local.localArticleItems
             .asSequence()
             .filter { it.isBookmark }

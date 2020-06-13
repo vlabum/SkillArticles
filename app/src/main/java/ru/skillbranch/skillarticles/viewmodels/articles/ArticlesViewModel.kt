@@ -29,7 +29,7 @@ open class ArticlesViewModel(handle: SavedStateHandle) :
             .setInitialLoadSizeHint(50)
             .build()
     }
-    open val listData = Transformations.switchMap(state) {
+    val listData = Transformations.switchMap(state) {
         when {
             it.isSearch && !it.searchQuery.isNullOrBlank() -> buildPagedList(
                 repository.searchArticles(
