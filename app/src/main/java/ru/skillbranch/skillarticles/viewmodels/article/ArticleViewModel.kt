@@ -1,5 +1,6 @@
 package ru.skillbranch.skillarticles.viewmodels.article
 
+import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
 import androidx.paging.LivePagedListBuilder
@@ -8,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.skillbranch.skillarticles.data.models.ArticleData
+import ru.skillbranch.skillarticles.data.models.ArticleItemData
 import ru.skillbranch.skillarticles.data.models.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.models.CommentItemData
 import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
@@ -18,6 +20,7 @@ import ru.skillbranch.skillarticles.extensions.data.toAppSettings
 import ru.skillbranch.skillarticles.extensions.data.toArticlePersonalInfo
 import ru.skillbranch.skillarticles.extensions.format
 import ru.skillbranch.skillarticles.extensions.indexesOf
+import ru.skillbranch.skillarticles.viewmodels.articles.ArticlesBoundaryCallback
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
@@ -31,6 +34,7 @@ class ArticleViewModel(
 
     private val repository = ArticleRepository
     private var clearContent: String? = null
+
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val listConfig by lazy {
         PagedList.Config.Builder()
@@ -42,7 +46,9 @@ class ArticleViewModel(
     //LiveData от PageList
     private val listData: LiveData<PagedList<CommentItemData>> =
         Transformations.switchMap(getArticleData()) {
-            buildPagedList(repository.allComments(articleId, it?.commentCount ?: 0))
+            it?.run {
+                buildPagedList(repository.allComments(articleId, it?.commentCount ?: 0))
+            }
         }
 
     private var isSearch: Boolean = false
@@ -181,6 +187,7 @@ class ArticleViewModel(
     }
 
     override fun handleSendComment(comment: String) {
+        updateState { it.copy(textComment = comment) }
         if (!currentState.isAuth) navigate(NavigationCommand.StartLogin())
         else {
             viewModelScope.launch {
@@ -202,13 +209,45 @@ class ArticleViewModel(
     private fun buildPagedList(
         dataFactory: CommentsDataFactory
     ): LiveData<PagedList<CommentItemData>> {
-        return LivePagedListBuilder<String, CommentItemData>(
+        val builder = LivePagedListBuilder<String, CommentItemData>(
             dataFactory,
             listConfig
         )
+
+        builder.setBoundaryCallback(
+            CommentsBoundaryCallback(
+                ::zeroLoadingHandle,
+                ::itemAtEndHandle
+            )
+        )
+
+        return builder
             .setFetchExecutor(Executors.newSingleThreadExecutor())
             .build()
     }
+
+    private fun zeroLoadingHandle() {
+        Log.e("ArticlesViewNodel", "zeroLoadingHandle: ")
+        notify(Notify.TextMessage("Storage is empty"))
+        viewModelScope.launch(Dispatchers.IO) {
+            val items =
+                repository.allComments(
+                    articleId = articleId,
+                    totalCount = listConfig.maxSize
+                )
+        }
+    }
+
+    private fun itemAtEndHandle(lastLoadArticle: CommentItemData) {
+        Log.e("ArticlesViewNodel", "itemAtEndHandle: ")
+        viewModelScope.launch(Dispatchers.IO) {
+            val items = repository.allComments(
+                articleId = articleId,
+                totalCount = listConfig.maxSize
+            )
+        }
+    }
+
 
     fun handleCommentFocus(hasFocus: Boolean) {
         updateState { it.copy(showBottomBar = !hasFocus) }
@@ -248,7 +287,8 @@ data class ArticleState(
     val commentsCount: Int = 0,
     val answerTo: String? = null,
     val answerToSlug: String? = null,
-    val showBottomBar: Boolean = true
+    val showBottomBar: Boolean = true,
+    val textComment: String? = null
 ) : IViewModelState {
     override fun save(outState: SavedStateHandle) {
         //TODO save state
@@ -256,6 +296,7 @@ data class ArticleState(
         outState.set("searchQuery", searchQuery)
         outState.set("searchResults", searchResults)
         outState.set("searchPosition", searchPosition)
+        outState.set("textComment", textComment)
     }
 
     override fun restore(savedState: SavedStateHandle): ArticleState {
@@ -264,7 +305,23 @@ data class ArticleState(
             isSearch = savedState["isSearch"] ?: false,
             searchQuery = savedState["searchQuery"],
             searchResults = savedState["searchResults"] ?: emptyList(),
-            searchPosition = savedState["searchPosition"] ?: 0
+            searchPosition = savedState["searchPosition"] ?: 0,
+            textComment = savedState["textComment"]
         )
+    }
+}
+
+class CommentsBoundaryCallback(
+    private val zeroLoadingHandle: () -> Unit,
+    private val itemAtEndHandle: (CommentItemData) -> Unit
+) : PagedList.BoundaryCallback<CommentItemData>() {
+    override fun onZeroItemsLoaded() {
+        //Storage is empty
+        zeroLoadingHandle()
+    }
+
+    override fun onItemAtEndLoaded(itemAtEnd: CommentItemData) {
+        //user scroll down -> need load more items
+        itemAtEndHandle(itemAtEnd)
     }
 }

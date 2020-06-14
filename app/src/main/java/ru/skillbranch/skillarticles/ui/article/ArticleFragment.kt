@@ -6,11 +6,9 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
+import android.text.Editable
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.WindowManager
+import android.view.*
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
@@ -87,6 +85,11 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
     private val submenu
         get() = root.findViewById<ArticleSubmenu>(R.id.submenu)
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        et_comment.setText(binding.textComment)
+    }
+
     override fun setupViews() {
         //window resize options
         root.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
@@ -129,7 +132,7 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         wrap_comments.setEndIconOnClickListener { view ->
             view.context.hideKeyboard(view)
             viewModel.handleClearComment() //1-40 говорит что должно быть
-            et_comment.text = null
+            et_comment.setText(binding.textComment)
             et_comment.clearFocus()
         }
 
@@ -239,9 +242,18 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        binding.saveUi(outState)
+    }
+
     inner class ArticleBinding : Binding() {
         var isFocusedSearch: Boolean = false
         var searchQuery: String? = null
+
+        var textComment: String by RenderProp("", false) {
+            et_comment.setText(it)
+        }
 
         private var isLoadingContent by RenderProp(true)
         private var isLike: Boolean by RenderProp(false) { bottombar.btn_like.isChecked = it }
@@ -341,15 +353,21 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             searchResults = data.searchResults
             answerTo = data.answerTo ?: "Comment"
             isShowBottombar = data.showBottomBar
+            textComment = data.textComment ?: ""
         }
 
         override fun saveUi(outState: Bundle) {
             outState.putBoolean(::isFocusedSearch.name, search_view?.hasFocus() ?: false)
+            outState.putString(::textComment.name, et_comment.text.toString())
+            super.saveUi(outState)
         }
 
         override fun restoreUi(savedState: Bundle?) {
+            super.restoreUi(savedState)
             isFocusedSearch = savedState?.getBoolean(::isFocusedSearch.name) ?: false
+            textComment = savedState?.getString(::textComment.name) ?: ""
         }
+
     }
 
 }
