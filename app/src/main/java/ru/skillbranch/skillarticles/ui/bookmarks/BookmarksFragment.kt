@@ -78,7 +78,7 @@ class BookmarksFragment : BaseFragment<BookmarksViewModel>() {
             addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
         }
 
-        viewModel.observerList(viewLifecycleOwner) {
+        viewModel.observeList(viewLifecycleOwner) {
             articlesAdapter.notifyDataSetChanged()
             articlesAdapter.submitList(it)
         }

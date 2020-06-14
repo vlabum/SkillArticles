@@ -199,7 +199,7 @@ class ArticleViewModel(
         }
     }
 
-    fun observerList(
+    fun observeList(
         owner: LifecycleOwner,
         onChanged: (list: PagedList<CommentItemData>) -> Unit
     ) {

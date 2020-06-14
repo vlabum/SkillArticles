@@ -120,7 +120,7 @@ open class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
             addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
         }
 
-        viewModel.observerList(viewLifecycleOwner) {
+        viewModel.observeList(viewLifecycleOwner) {
             articlesAdapter.submitList(it)
         }
     }

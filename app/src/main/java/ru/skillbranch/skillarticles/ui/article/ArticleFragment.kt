@@ -141,7 +141,7 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             adapter = commentsAdapter
         }
 
-        viewModel.observerList(viewLifecycleOwner) { commentsAdapter.submitList(it) }
+        viewModel.observeList(viewLifecycleOwner) { commentsAdapter.submitList(it) }
 
 
     }

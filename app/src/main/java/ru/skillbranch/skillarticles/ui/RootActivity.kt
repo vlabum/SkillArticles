@@ -58,7 +58,7 @@ class RootActivity : BaseActivity<ArticleViewModel>() {
             nav_view.selectDestination(destination)
 
 //            if(destination.id == R.id.nav_auth) nav_view.selectItem(arguments?.get("private_destination") as Int?)
-
+//
 //            if (isAuth && destination.id == R.id.nav_auth) {
 //                controller.popBackStack()
 //                val private = arguments?.get("private_destination") as Int?

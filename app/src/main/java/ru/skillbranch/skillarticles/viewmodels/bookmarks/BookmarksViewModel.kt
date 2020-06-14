@@ -45,7 +45,7 @@ class BookmarksViewModel(handle: SavedStateHandle) :
         }
     }
 
-    fun observerList(
+    fun observeList(
         owner: LifecycleOwner,
         onChange: (list: PagedList<ArticleItemData>) -> Unit
     ) {

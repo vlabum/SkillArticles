@@ -48,7 +48,7 @@ open class ArticlesViewModel(handle: SavedStateHandle) :
 //        }
 //    }
 
-    open fun observerList(
+    open fun observeList(
         owner: LifecycleOwner,
         onChange: (list: PagedList<ArticleItemData>) -> Unit
     ) {
