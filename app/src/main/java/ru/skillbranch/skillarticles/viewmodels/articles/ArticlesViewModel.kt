@@ -2,7 +2,6 @@ package ru.skillbranch.skillarticles.viewmodels.articles
 
 import android.util.Log
 import androidx.lifecycle.*
-import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import kotlinx.coroutines.Dispatchers
@@ -19,8 +18,7 @@ import java.util.concurrent.Executors
 
 open class ArticlesViewModel(handle: SavedStateHandle) :
     BaseViewModel<ArticlesState>(handle, ArticlesState()) {
-
-    val repository = ArticlesRepository
+    private val repository = ArticlesRepository
     private val listConfig by lazy {
         PagedList.Config.Builder()
             .setEnablePlaceholders(false)
@@ -29,29 +27,27 @@ open class ArticlesViewModel(handle: SavedStateHandle) :
             .setInitialLoadSizeHint(50)
             .build()
     }
-    val listData = Transformations.switchMap(state) {
+    private val listData = Transformations.switchMap(state) {
+        val searchFn = if (!it.isBookmark) repository::searchArticles
+        else repository::searchBookmarkedArticles
+
+        val defaultFn = if (!it.isBookmark) repository::allArticles
+        else repository::allBookmarked
+
         when {
             it.isSearch && !it.searchQuery.isNullOrBlank() -> buildPagedList(
-                repository.searchArticles(
-                    it.searchQuery
-                )
+                searchFn(it.searchQuery)
             )
-            else -> buildPagedList(repository.allArticles())
+            else -> buildPagedList(defaultFn())
         }
     }
 
-
-//    init {
-//        subscribeOnDataSource(repository.loadArticles()) { articles, state ->
-//            articles ?: return@subscribeOnDataSource null
-//            state.copy(articles = articles)
-//        }
-//    }
-
     open fun observeList(
         owner: LifecycleOwner,
+        isBookmark: Boolean = false,
         onChange: (list: PagedList<ArticleItemData>) -> Unit
     ) {
+        updateState { it.copy(isBookmark = isBookmark) }
         listData.observe(owner, Observer { onChange(it) })
     }
 
@@ -77,10 +73,8 @@ open class ArticlesViewModel(handle: SavedStateHandle) :
             .setFetchExecutor(Executors.newSingleThreadExecutor())
             .build()
     }
-
     //вызывается каждый раз, конда мы доскроливаем до конца нашего DataSource
     private fun itemAtEndHandle(lastLoadArticle: ArticleItemData) {
-        Log.e("ArticlesViewNodel", "itemAtEndHandle: ")
         viewModelScope.launch(Dispatchers.IO) {
             val items = repository.loadArticlesFromNetwork(
                 start = lastLoadArticle.id.toInt().inc(),
@@ -104,7 +98,6 @@ open class ArticlesViewModel(handle: SavedStateHandle) :
     }
 
     private fun zeroLoadingHandle() {
-        Log.e("ArticlesViewNodel", "zeroLoadingHandle: ")
         notify(Notify.TextMessage("Storage is empty"))
         viewModelScope.launch(Dispatchers.IO) {
             val items =
@@ -130,22 +123,23 @@ open class ArticlesViewModel(handle: SavedStateHandle) :
     }
 
     fun handleToggleBookmark(id: String, isChecked: Boolean) {
-        repository.updateBookmark(id, isChecked)
-        updateState { it.copy(isLoading = true) }
+        repository.updateBookmark(id, !isChecked)
+        listData.value?.dataSource?.invalidate()
     }
-
 }
 
 data class ArticlesState(
     val isSearch: Boolean = false,
     val searchQuery: String? = null,
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val isBookmark: Boolean = false
 ) : IViewModelState
 
 //для уведомлений о том, что в нашем dataSource закончились данные, типо доскролили до самого низа
 class ArticlesBoundaryCallback(
     private val zeroLoadingHandle: () -> Unit,
     private val itemAtEndHandle: (ArticleItemData) -> Unit
+
 ) : PagedList.BoundaryCallback<ArticleItemData>() {
     override fun onZeroItemsLoaded() {
         //Storage is empty
