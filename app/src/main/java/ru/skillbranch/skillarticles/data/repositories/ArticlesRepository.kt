@@ -2,9 +2,9 @@ package ru.skillbranch.skillarticles.data.repositories
 
 import androidx.paging.DataSource
 import androidx.paging.PositionalDataSource
-import ru.skillbranch.skillarticles.data.models.ArticleItemData
 import ru.skillbranch.skillarticles.data.LocalDataHolder
 import ru.skillbranch.skillarticles.data.NetworkDataHolder
+import ru.skillbranch.skillarticles.data.models.ArticleItemData
 import java.lang.Thread.sleep
 
 object ArticlesRepository {
@@ -29,18 +29,18 @@ object ArticlesRepository {
         .take(size)
 
     fun findBookmarkArticles(start: Int, size: Int) = local.localArticleItems
-            .asSequence()
-            .filter { it.isBookmark }
-            .drop(start)
-            .take(size)
-            .toList()
+        .asSequence()
+        .filter { it.isBookmark }
+        .drop(start)
+        .take(size)
+        .toList()
 
-    private fun searchBookmarkArticles(start: Int, size: Int, query: String) = local.localArticleItems
-            .asSequence()
-            .filter { it.isBookmark && it.title.contains(query, true) }
-            .drop(start)
-            .take(size)
-            .toList()
+    fun searchBookmarkArticles(start: Int, size: Int,  query: String) = local.localArticleItems
+        .asSequence()
+        .filter { it.isBookmark  && it.title.contains(query, true)  }
+        .drop(start)
+        .take(size)
+        .toList()
 
     private fun searchArticlesByTitle(start: Int, size: Int, queryTitle: String) =
         local.localArticleItems
@@ -110,18 +110,18 @@ sealed class ArticleStrategy() {
             itemProvider(start, size, query)
     }
 
-    class BookmarkArticles(
-        private val itemProvider: (Int, Int) -> List<ArticleItemData>
-    ) : ArticleStrategy() {
-        override fun getItems(start: Int, size: Int): List<ArticleItemData> =
-            itemProvider(start, size)
-    }
-
     class SearchBookmark(
         private val itemProvider: (Int, Int, String) -> List<ArticleItemData>,
         private val query: String
     ) : ArticleStrategy() {
         override fun getItems(start: Int, size: Int): List<ArticleItemData> =
             itemProvider(start, size, query)
+    }
+
+    class BookmarkArticles(
+        private val itemProvider: (Int, Int) -> List<ArticleItemData>
+    ) : ArticleStrategy() {
+        override fun getItems(start: Int, size: Int): List<ArticleItemData> =
+            itemProvider(start, size)
     }
 }

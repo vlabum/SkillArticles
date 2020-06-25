@@ -1,6 +1,5 @@
 package ru.skillbranch.skillarticles.data
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.GlobalScope
@@ -15,28 +14,13 @@ object LocalDataHolder {
     private val articleInfo = MutableLiveData<ArticlePersonalInfo?>(null)
     private val settings = MutableLiveData(AppSettings())
     private val isAuth = MutableLiveData(false)
-
-    private var dropFirst: Boolean = false
-
     val localArticleItems: MutableList<ArticleItemData> = mutableListOf()
     val localArticles: MutableMap<String, MutableLiveData<ArticleData>> = mutableMapOf()
 
     fun findArticle(articleId: String): LiveData<ArticleData?> {
-        if (dropFirst) {
-            localArticles.remove("0")
-            dropFirst = false
-        }
         if (localArticles[articleId] == null) {
-            Log.e("DataHolder", "findArticle $articleId: ")
             val article = localArticleItems.find { it.id == articleId }
-            if (article == null && localArticleItems.count() == 0) {
-                dropFirst = true
-            }
-            localArticles[articleId] = MutableLiveData(
-                EntityGenerator.generateArticle(
-                    article ?: EntityGenerator.createArticleItem(articleId)
-                )
-            )
+            localArticles[articleId] = MutableLiveData(EntityGenerator.generateArticle(article ?: EntityGenerator.createArticleItem(articleId)))
         }
         return localArticles[articleId]!!
     }
@@ -95,8 +79,7 @@ object NetworkDataHolder {
         val mutableList =
             commentsData[articleId] ?: error("Comments for article id : $articleId not found")
         val index =
-            if (answerToSlug == null) 0 else mutableList.indexOfFirst { it.slug == answerToSlug }
-                .inc()
+            if (answerToSlug == null) 0 else mutableList.indexOfFirst { it.slug == answerToSlug }.inc()
         val mess = mutableList.getOrNull(index.dec())
         val id = "${mutableList.size}"
         mutableList.add(

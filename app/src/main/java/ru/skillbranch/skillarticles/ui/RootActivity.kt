@@ -1,33 +1,26 @@
 package ru.skillbranch.skillarticles.ui
 
-import android.app.Activity
 import android.os.Bundle
-import android.view.View
-import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_root.*
-import kotlinx.android.synthetic.main.layout_bottombar.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.selectDestination
+import ru.skillbranch.skillarticles.extensions.selectItem
 import ru.skillbranch.skillarticles.ui.base.BaseActivity
 import ru.skillbranch.skillarticles.ui.custom.Bottombar
-import ru.skillbranch.skillarticles.viewmodels.article.ArticleViewModel
-import ru.skillbranch.skillarticles.viewmodels.articles.ArticlesViewModel
+import ru.skillbranch.skillarticles.viewmodels.RootState
+import ru.skillbranch.skillarticles.viewmodels.RootViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
-import ru.skillbranch.skillarticles.viewmodels.base.ViewModelFactory
 
-
-class RootActivity : BaseActivity<ArticleViewModel>() {
-
+class RootActivity : BaseActivity<RootViewModel>(){
+    var isAuth : Boolean = false
     override val layout: Int = R.layout.activity_root
-    override val viewModel: ArticleViewModel by viewModels() {
-        ViewModelFactory(owner = this, params = "0")
-    }
+    public override val viewModel: RootViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,31 +36,24 @@ class RootActivity : BaseActivity<ArticleViewModel>() {
 
         setupActionBarWithNavController(navController, appbarConfiguration)
         nav_view.setOnNavigationItemSelectedListener {
-            //if click on bottom navigation item -> navigate to destination by item id
-            //идентификаторы в навигации и айтемах меню одинаковые => можно сделать так
-            if (it.itemId == R.id.nav_profile && !viewModel.currentState.isAuth)
-                viewModel.navigate(NavigationCommand.StartLogin())
-            else
-                viewModel.navigate(NavigationCommand.To(it.itemId))
+            //if click on bottom navigation item - > navigate to destination by item id
+            viewModel.navigate(NavigationCommand.To(it.itemId))
             true
         }
 
         navController.addOnDestinationChangedListener { controller, destination, arguments ->
             //if destination change set select bottom navigation item
-            //подсветить эелемент боттом бара, если на нем находимся
             nav_view.selectDestination(destination)
 
-//            if(destination.id == R.id.nav_auth) nav_view.selectItem(arguments?.get("private_destination") as Int?)
-//
-//            if (isAuth && destination.id == R.id.nav_auth) {
-//                controller.popBackStack()
-//                val private = arguments?.get("private_destination") as Int?
-//                if (private != null) controller.navigate(private)
-//            }
+            if(destination.id == R.id.nav_auth ) nav_view.selectItem(arguments?.get("private_destination")as Int?)
 
+            if(isAuth && destination.id == R.id.nav_auth){
+                controller.popBackStack()
+                val private = arguments?.get("private_destination") as Int?
+                if(private !=null) controller.navigate(private)
+            }
         }
     }
-
 
     override fun renderNotification(notify: Notify) {
         val snackbar = Snackbar.make(container, notify.message, Snackbar.LENGTH_LONG)
@@ -79,8 +65,7 @@ class RootActivity : BaseActivity<ArticleViewModel>() {
 
                 with(snackbar) {
                     setActionTextColor(getColor(R.color.color_accent_dark))
-                    setAction(label) { handler.invoke()
-                    }
+                    setAction(label) { handler.invoke() }
                 }
             }
 
@@ -92,8 +77,7 @@ class RootActivity : BaseActivity<ArticleViewModel>() {
                     setTextColor(getColor(android.R.color.white))
                     setActionTextColor(getColor(android.R.color.white))
                     handler ?: return@with
-                    setAction(label) { handler.invoke()
-                    }
+                    setAction(label) { handler.invoke() }
                 }
             }
         }
@@ -102,7 +86,7 @@ class RootActivity : BaseActivity<ArticleViewModel>() {
     }
 
     override fun subscribeOnState(state: IViewModelState) {
-        //DO something with state
+        state as RootState
+        isAuth = state.isAuth
     }
-
 }

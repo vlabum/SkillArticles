@@ -16,7 +16,7 @@ import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
 import java.util.concurrent.Executors
 
-open class ArticlesViewModel(handle: SavedStateHandle) :
+class ArticlesViewModel(handle: SavedStateHandle) :
     BaseViewModel<ArticlesState>(handle, ArticlesState()) {
     private val repository = ArticlesRepository
     private val listConfig by lazy {
@@ -42,7 +42,7 @@ open class ArticlesViewModel(handle: SavedStateHandle) :
         }
     }
 
-    open fun observeList(
+    fun observeList(
         owner: LifecycleOwner,
         isBookmark: Boolean = false,
         onChange: (list: PagedList<ArticleItemData>) -> Unit
@@ -51,7 +51,7 @@ open class ArticlesViewModel(handle: SavedStateHandle) :
         listData.observe(owner, Observer { onChange(it) })
     }
 
-    fun buildPagedList(
+    private fun buildPagedList(
         dataFactory: ArticlesDataFactory
     ): LiveData<PagedList<ArticleItemData>> {
         val builder = LivePagedListBuilder<Int, ArticleItemData>(

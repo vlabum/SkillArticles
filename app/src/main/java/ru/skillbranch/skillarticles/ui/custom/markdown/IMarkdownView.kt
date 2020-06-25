@@ -5,7 +5,6 @@ import android.text.SpannableString
 import androidx.core.text.getSpans
 import ru.skillbranch.skillarticles.ui.custom.spans.SearchFocusSpan
 import ru.skillbranch.skillarticles.ui.custom.spans.SearchSpan
-import java.lang.Exception
 
 interface IMarkdownView {
     var fontSize: Float
@@ -29,6 +28,7 @@ interface IMarkdownView {
                 )
             }
         } catch (e: Exception) {
+
         }
     }
 

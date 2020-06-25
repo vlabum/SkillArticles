@@ -7,33 +7,25 @@ import android.text.style.LeadingMarginSpan
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
 
-class BlockquotesSpan (
+class BlockquotesSpan(
     @Px
-    private val gapWith: Float,
+    private val gapWidth: Float,
     @Px
-    private val quoteWith: Float,
+    private val quoteWidth: Float,
     @ColorInt
     private val lineColor: Int
 ) : LeadingMarginSpan {
+
     override fun drawLeadingMargin(
-        canvas: Canvas,
-        paint: Paint,
-        currentMigrationLocation: Int,
-        paragraphDirection: Int,
-        lineTop: Int,
-        lineBaseline: Int,
-        lineBottom: Int,
-        text: CharSequence?,
-        lineStart: Int,
-        lineEnd: Int,
-        isFirstLine: Boolean,
-        layout: Layout?
+        canvas: Canvas, paint: Paint, currentMarginLocation: Int, paragraphDirection: Int,
+        lineTop: Int, lineBaseline: Int, lineBottom: Int, text: CharSequence?, lineStart: Int,
+        lineEnd: Int, isFirstLine: Boolean, layout: Layout?
     ) {
         paint.withCustomColor {
             canvas.drawLine(
-                quoteWith/2f,
+                quoteWidth/2f,
                 lineTop.toFloat(),
-                quoteWith/2f,
+                quoteWidth/2f,
                 lineBottom.toFloat(),
                 paint
             )
@@ -41,7 +33,7 @@ class BlockquotesSpan (
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return (quoteWith + gapWith).toInt()
+        return (quoteWidth + gapWidth).toInt()
     }
 
     private inline fun Paint.withCustomColor(block: () -> Unit) {
@@ -51,13 +43,12 @@ class BlockquotesSpan (
 
         color = lineColor
         style = Paint.Style.STROKE
-        strokeWidth = quoteWith
+        strokeWidth = quoteWidth
 
         block()
 
         color = oldColor
         style = oldStyle
         strokeWidth = oldWidth
-
     }
 }

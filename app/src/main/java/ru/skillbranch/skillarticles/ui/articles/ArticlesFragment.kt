@@ -1,17 +1,17 @@
 package ru.skillbranch.skillarticles.ui.articles
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_articles.*
+import kotlinx.android.synthetic.main.search_view_layout.view.*
 import ru.skillbranch.skillarticles.R
-import ru.skillbranch.skillarticles.data.models.ArticleItemData
 import ru.skillbranch.skillarticles.ui.base.BaseFragment
 import ru.skillbranch.skillarticles.ui.base.Binding
 import ru.skillbranch.skillarticles.ui.base.MenuItemHolder
@@ -19,15 +19,14 @@ import ru.skillbranch.skillarticles.ui.base.ToolbarBuilder
 import ru.skillbranch.skillarticles.ui.delegates.RenderProp
 import ru.skillbranch.skillarticles.viewmodels.articles.ArticlesState
 import ru.skillbranch.skillarticles.viewmodels.articles.ArticlesViewModel
-import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 
-open class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
-    override val viewModel: ArticlesViewModel by viewModels()
+class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
+    override val viewModel: ArticlesViewModel by activityViewModels()
     override val layout: Int = R.layout.fragment_articles
     override val binding: ArticlesBinding by lazy { ArticlesBinding() }
-
+    private val args: ArticlesFragmentArgs by navArgs()
     //для поиска
     override val prepareToolbar: (ToolbarBuilder.() -> Unit) = {
         addMenuItem(
@@ -40,13 +39,12 @@ open class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
         )
     }
 
-//    private val rv_articles: RecyclerView? by lazy {
-//        view!!.findViewById(R.id.rv_articles) as RecyclerView
-//    }
+    private val articlesAdapter = ArticlesAdapter { item, isToggleBookmark ->
 
-    val articlesAdapter = ArticlesAdapter(
-        { item ->
-            val action = ArticlesFragmentDirections.actionNavArticlesToPageArticle(
+        if (isToggleBookmark) {
+            viewModel.handleToggleBookmark(item.id, item.isBookmark)
+        } else {
+            val action = ArticlesFragmentDirections.actionToPageArticle(
                 item.id,
                 item.author,
                 item.authorAvatar,
@@ -57,19 +55,13 @@ open class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
                 item.date
             )
             viewModel.navigate(NavigationCommand.To(action.actionId, action.arguments))
-        },
-        { itemId, isBookmark ->
-            viewModel.handleToggleBookmark(itemId, isBookmark)
         }
-    )
-
-
+    }
     //нужен чтобы указать, что у данного фрагмента есть сабменю
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
-
     //обработка нажатия на searchView
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
@@ -78,8 +70,6 @@ open class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
         if (binding.isSearch) {
             menuItem.expandActionView()
             searchView.setQuery(binding.searchQuery, false)
-            if (binding.isFocusedSearch) searchView.requestFocus()
-            else searchView.clearFocus()
         }
 
         menuItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
@@ -92,6 +82,7 @@ open class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
                 viewModel.handleSearchMode(false)
                 return true
             }
+
         })
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -105,29 +96,27 @@ open class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
                 return true
             }
         })
-
-        searchView.setOnCloseListener {
-            viewModel.handleSearchMode(false)
-            true
-        }
     }
 
+    override fun onDestroyView() {
+        toolbar.search_view?.setOnQueryTextListener(null)
+        super.onDestroyView()
+    }
+
+
     override fun setupViews() {
-        //rv_articles ?: return
         with(rv_articles) {
             layoutManager = LinearLayoutManager(context)
             adapter = articlesAdapter
             addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
         }
 
-        viewModel.observeList(viewLifecycleOwner) {
+        viewModel.observeList(viewLifecycleOwner, args.isBookmarks) {
             articlesAdapter.submitList(it)
         }
     }
 
     inner class ArticlesBinding : Binding() {
-        //TODO сохранение UI элементов нужно реализовать самостоятельно (0:47)
-        var isFocusedSearch: Boolean = false
         var searchQuery: String? = null
         var isSearch: Boolean = false
         var isLoading: Boolean by RenderProp(true) {
@@ -140,7 +129,6 @@ open class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
             searchQuery = data.searchQuery
             isLoading = data.isLoading
         }
-
-        //TODO save UI
     }
+
 }

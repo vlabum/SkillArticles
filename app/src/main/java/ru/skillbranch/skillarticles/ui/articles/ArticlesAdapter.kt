@@ -1,19 +1,15 @@
 package ru.skillbranch.skillarticles.ui.articles
 
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.extensions.LayoutContainer
-import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.data.models.ArticleItemData
 import ru.skillbranch.skillarticles.ui.custom.ArticleItemView
 
 class ArticlesAdapter(
-    private val listener: (ArticleItemData) -> Unit,
-    private val listenerBookmark: (String, Boolean) -> Unit
+    private val listener: (ArticleItemData, Boolean) -> Unit
 ) :
     PagedListAdapter<ArticleItemData, ArticleVH>(ArticleDiffCallback()) {
 
@@ -23,40 +19,24 @@ class ArticlesAdapter(
     }
 
     override fun onBindViewHolder(holder: ArticleVH, position: Int) {
-        holder.bind(getItem(position), listener, listenerBookmark)
+        holder.bind(getItem(position), listener)
     }
 }
 
 class ArticleDiffCallback : DiffUtil.ItemCallback<ArticleItemData>() {
-    override fun areItemsTheSame(oldItem: ArticleItemData, newItem: ArticleItemData): Boolean {
-        return oldItem.id == newItem.id
-    }
+    override fun areItemsTheSame(oldItem: ArticleItemData, newItem: ArticleItemData): Boolean =
+        oldItem.id == newItem.id
 
-    override fun areContentsTheSame(oldItem: ArticleItemData, newItem: ArticleItemData): Boolean {
-        return oldItem == newItem
-    }
+    override fun areContentsTheSame(oldItem: ArticleItemData, newItem: ArticleItemData): Boolean =
+        oldItem == newItem
 }
 
-class ArticleVH(
-    override val containerView: View
-) : RecyclerView.ViewHolder(containerView), LayoutContainer {
-
+class ArticleVH(val containerView: View) : RecyclerView.ViewHolder(containerView) {
     fun bind(
         item: ArticleItemData?,
-        listener: (ArticleItemData) -> Unit,
-        listenerBookmark: ((String, Boolean) -> Unit)
+        listener: (ArticleItemData, Boolean) -> Unit
     ) {
-
-        //if use placeholder item may be null
-        item ?: return
-        (containerView as ArticleItemView).bind(item) { _, _ ->
-            listenerBookmark(
-                item.id,
-                !item.isBookmark
-            )
-        }
-        itemView.setOnClickListener { listener(item) }
-
+        (containerView as ArticleItemView).bind(item!!, listener)
     }
 
 }

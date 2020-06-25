@@ -45,24 +45,23 @@ class BookmarksFragment : BaseFragment<BookmarksViewModel>() {
         )
     }
 
-    val articlesAdapter = ArticlesAdapter(
-        { item ->
-            val action = ArticlesFragmentDirections.actionNavArticlesToPageArticle(
-                item.id,
-                item.author,
-                item.authorAvatar,
-                item.category,
-                item.categoryIcon,
-                item.poster,
-                item.title,
-                item.date
-            )
-            viewModel.navigate(NavigationCommand.To(action.actionId, action.arguments))
-        },
-        { itemId, isBookmark ->
-            viewModel.handleToggleBookmark(itemId, isBookmark)
+    val articlesAdapter = ArticlesAdapter { item, isToggleBookmark ->
+            if (isToggleBookmark) {
+                viewModel.handleToggleBookmark(item.id, item.isBookmark)
+            } else {
+                val action = ArticlesFragmentDirections.actionToPageArticle(
+                    item.id,
+                    item.author,
+                    item.authorAvatar,
+                    item.category,
+                    item.categoryIcon,
+                    item.poster,
+                    item.title,
+                    item.date
+                )
+                viewModel.navigate(NavigationCommand.To(action.actionId, action.arguments))
+            }
         }
-    )
 
     //нужен чтобы указать, что у данного фрагмента есть сабменю
     override fun onCreate(savedInstanceState: Bundle?) {

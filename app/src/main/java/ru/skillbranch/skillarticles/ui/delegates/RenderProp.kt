@@ -3,24 +3,23 @@ package ru.skillbranch.skillarticles.ui.delegates
 import ru.skillbranch.skillarticles.ui.base.Binding
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
-
 // делегат, который будет отрисовывать наши проперти
 class RenderProp<T: Any>(
     var value: T, // значение поля
     private val needInit: Boolean = true, // надо ли вызывать обработчик при инициализации или не надо
     private val onChange: ((T) -> Unit)? = null // обработчик, устанавливает значение для вьюхи при изменении нашего проперти
 ) : ReadWriteProperty<Binding, T> {
-
     private val listeners: MutableList<() -> Unit> = mutableListOf()
 
     fun bind() {
-        if (needInit) onChange?.invoke(value)
+        if (needInit) onChange?.invoke(this.value)
     }
 
     operator fun provideDelegate(
         thisRef: Binding,
         prop: KProperty<*>
     ): ReadWriteProperty<Binding, T> {
+
         val delegate = RenderProp(value, needInit, onChange)
         registerDelegate(thisRef, prop.name, delegate)
         return delegate
@@ -41,25 +40,7 @@ class RenderProp<T: Any>(
         listeners.add(listener)
     }
 
-    private fun registerDelegate(thisRef: Binding, name: String, delegate: RenderProp<T>) {
-        thisRef.delegates[name] = delegate
-    }
-
-}
-
-class ObserveProp<T : Any>(private var value: T, private val onChange: ((T) -> Unit)? = null) {
-    //provide delegate (when by call)
-    operator fun provideDelegate(
-        thisRef: Binding,
-        prop: KProperty<*>
-    ): ReadWriteProperty<Binding, T> {
-        val delegate = RenderProp(value, true, onChange)
-        registerDelegate(thisRef, prop.name, delegate)
-        return delegate
-    }
-
-    // register new delegate for property in Binding
-    private fun registerDelegate(thisRef: Binding, name: String, delegate: RenderProp<T>) {
+    private fun registerDelegate(thisRef: Binding, name: String, delegate: RenderProp<T>){
         thisRef.delegates[name] = delegate
     }
 }

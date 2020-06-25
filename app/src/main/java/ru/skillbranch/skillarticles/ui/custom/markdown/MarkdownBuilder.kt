@@ -42,9 +42,7 @@ class MarkdownBuilder(context: Context) {
     private fun buildElement(element: Element, builder: SpannableStringBuilder): CharSequence {
         return builder.apply {
             when (element) {
-
                 is Element.Text -> append(element.text)
-
                 is Element.UnorderedListItem -> {
                     inSpans(UnorderedListSpan(gap, bulletRadius, colorSecondary)) {
                         for (child in element.elements) {
@@ -123,8 +121,10 @@ class MarkdownBuilder(context: Context) {
                     }
                 }
 
-                is Element.OrderedListItem -> {
-                    inSpans(OrderedListSpan(gap, element.order, colorSecondary )) {
+
+
+                is Element.OrderedListItem  -> {
+                    inSpans(OrderedListSpan(gap, element.order, colorPrimary)) {
                         for (child in element.elements) {
                             buildElement(child, builder)
                         }
@@ -132,7 +132,6 @@ class MarkdownBuilder(context: Context) {
                 }
 
                 else -> append(element.text)
-
             }
         }
     }

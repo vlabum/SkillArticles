@@ -2,47 +2,39 @@ package ru.skillbranch.skillarticles.extensions
 
 fun List<Pair<Int, Int>>.groupByBounds(bounds: List<Pair<Int, Int>>): List<List<Pair<Int, Int>>> {
 
-    var res = mutableListOf<List<Pair<Int, Int>>>()
+    val results= List<MutableList<Pair<Int, Int>>>(bounds.size){mutableListOf()}
 
-    bounds.forEach { (boundStart, boundEnd) ->
+    var lastResult = 0
 
-        val resultList = mutableListOf<Pair<Int, Int>>()
+    bounds@ for ((index, bound) in bounds.withIndex()) {
+        var lastIndex = bound.first
+        results@ for (result in subList(lastResult, size)) {
+            val boundRange = lastIndex..bound.second
 
-        val filteredList =
-            this.filter { (start, end) ->
-                when {
-                    start in boundStart.inc()..boundEnd -> true
-                    end in boundStart.inc()..boundEnd -> true
-                    boundStart in start..end.dec() -> true
-                    else -> false
+            when {
+                result.first in boundRange && result.second in boundRange -> {
+                        results[index].add(result.first to result.second)
+                        lastResult++
+                        lastIndex = result.second
+                }
+
+                result.first in boundRange && result.second !in boundRange -> {
+                    if(result.first != bound.second){
+                        results[index].add(result.first to bound.second)
+                    }
+                    continue@bounds
+                }
+
+                result.first !in boundRange && result.second in boundRange -> {
+                    if(bound.first != result.second){
+                        results[index].add(bound.first to result.second)
+                    }
+                    lastResult++
+                    continue@results
                 }
             }
-
-        when (filteredList.size) {
-
-            0 -> {}
-
-            1 -> {
-                if (filteredList.first().first < boundStart || filteredList.last().second > boundEnd)
-                    resultList.add(Pair(boundStart, boundEnd))
-                else resultList.addAll(filteredList)
-            }
-
-            else -> {
-                if (filteredList.first().first < boundStart)
-                    resultList.add(Pair(boundStart, filteredList.first().second))
-                else resultList.add(filteredList.first())
-
-                if (filteredList.size > 2)
-                    resultList.addAll(filteredList.subList(1, filteredList.lastIndex))
-
-                if (filteredList.last().second > boundEnd)
-                    resultList.add(Pair(filteredList.last().first, boundEnd))
-                else resultList.add(filteredList.last())
-            }
         }
-        res.add(resultList)
     }
-    res
-    return res
+
+    return results
 }

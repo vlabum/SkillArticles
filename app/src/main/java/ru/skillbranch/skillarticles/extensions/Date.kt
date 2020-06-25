@@ -2,24 +2,19 @@ package ru.skillbranch.skillarticles.extensions
 
 import java.text.SimpleDateFormat
 import java.util.*
-
 const val SECOND = 1000L
 const val MINUTE = 60 * SECOND
 const val HOUR = 60 * MINUTE
 const val DAY = 24 * HOUR
 
 fun Date.format(pattern: String = "HH:mm:ss dd.MM.yy"): String {
-    val dateFormat = SimpleDateFormat(pattern, Locale("ru"))
-    return dateFormat.format(this)
-}
-
-fun Date.shortFormat(pattern: String = "HH:mm:ss dd.MM.yy"): String {
-    val dateFormat = SimpleDateFormat(pattern, Locale("ru"))
+    val dateFormat = SimpleDateFormat(pattern, Locale.getDefault())
     return dateFormat.format(this)
 }
 
 fun Date.add(value: Int, units: TimeUnits = TimeUnits.SECOND): Date {
     var time = this.time
+
     time += when (units) {
         TimeUnits.SECOND -> value * SECOND
         TimeUnits.MINUTE -> value * MINUTE
@@ -32,97 +27,39 @@ fun Date.add(value: Int, units: TimeUnits = TimeUnits.SECOND): Date {
 
 fun Date.humanizeDiff(date: Date = Date()): String {
     val diff = date.time - this.time
-    return getDiffStr(diff)
-}
+    val seconds = (diff / 1000)
+    val minutes = (seconds / 60)
+    val hours = (minutes / 60)
+    val days = (hours / 24)
 
-private fun getDiffStr(diff: Long): String {
-    val diffAbsolute = Math.abs(diff)
-    val isFuture = diff < 0
-    val diffStr =
-        when {
-            diffAbsolute / SECOND <= 75 -> TimeUnits.SECOND to diffAbsolute / SECOND
-            diffAbsolute / MINUTE <= 75 -> TimeUnits.MINUTE to diffAbsolute / MINUTE
-            diffAbsolute / HOUR <= 26 -> TimeUnits.HOUR to diffAbsolute / HOUR
-            else -> TimeUnits.DAY to diffAbsolute / DAY
-        }.let {
-            when {
-                it.first == TimeUnits.SECOND && it.second <= 1 && isFuture -> "сейчас"
-                it.first == TimeUnits.SECOND && it.second <= 1 -> "только что"
-                it.first == TimeUnits.SECOND && it.second <= 45 -> "несколько секунд"
-                it.first == TimeUnits.SECOND && it.second <= 75 -> "минуту"
-                it.first == TimeUnits.MINUTE && it.second <= 45 -> TimeUnits.MINUTE.plural(it.second.toInt())
-                it.first == TimeUnits.MINUTE && it.second <= 75 -> "час"
-                it.first == TimeUnits.HOUR && it.second <= 22 -> TimeUnits.HOUR.plural(it.second.toInt())
-                it.first == TimeUnits.HOUR && it.second <= 26 -> "день"
-                it.first == TimeUnits.DAY && it.second <= 360 -> TimeUnits.DAY.plural(it.second.toInt())
-                else -> if (isFuture) "более чем через год" else "более года назад"
-            }
-        }.let {
-            if (diffAbsolute / SECOND <= 1 || diffAbsolute / DAY > 360) it
-            else if (isFuture) "через $it"
-            else "$it назад"
-        }
-    return diffStr
-}
-
-enum class QuantityDesignation {
-    ONE,
-    FEW,
-    LOT;
-
-    fun getValue(number: Long): QuantityDesignation {
-        val lastDigit = number % 10
-        val last2Digit = number % 100
-        return when {
-            last2Digit in 10..14 -> LOT
-            lastDigit == 0L -> LOT
-            lastDigit == 1L -> ONE
-            lastDigit in 2..4 -> FEW
-            else -> LOT
-        }
+    return when (diff) {
+        in 0L..1 * SECOND -> "just now"
+        in 1 * SECOND..45 * SECOND -> "a few seconds ago"
+        in 45 * SECOND..75 * SECOND -> "a minute ago"
+        in 75 * SECOND..45 * MINUTE -> "$minutes minutes ago"
+        in 45 * MINUTE..75 * MINUTE -> "hour ago"
+        in 75 * MINUTE..22 * HOUR -> "$hours hour ago"
+        in 22 * HOUR..26 * HOUR -> "one day ago"
+        in 26 * HOUR..360 * DAY -> "$days days ago"
+        else -> "more than a year ago"
     }
 }
 
+fun Date.shortFormat(): String {
+    val pattern  = if(this.isSameDay(Date())) "HH:mm" else "dd.MM.yy"
+    val dateFormat = SimpleDateFormat(pattern,Locale.getDefault())
+    return dateFormat.format(this)
+}
+
+fun Date.isSameDay(date:Date):Boolean{
+    val day1 = this.time/DAY
+    val day2 = date.time/DAY
+    return day1 == day2
+}
 
 enum class TimeUnits {
-
-    SECOND {
-        override fun plural(value: Int): String {
-            return when(QuantityDesignation.ONE.getValue(value.toLong())) {
-                QuantityDesignation.ONE -> "$value секунду"
-                QuantityDesignation.FEW -> "$value секунды"
-                QuantityDesignation.LOT -> "$value секунд"
-            }
-        }
-    },
-    MINUTE {
-        override fun plural(value: Int): String {
-            return when(QuantityDesignation.ONE.getValue(value.toLong())) {
-                QuantityDesignation.ONE -> "$value минуту"
-                QuantityDesignation.FEW -> "$value минуты"
-                QuantityDesignation.LOT -> "$value минут"
-            }
-        }
-    },
-    HOUR {
-        override fun plural(value: Int): String {
-            return when(QuantityDesignation.ONE.getValue(value.toLong())) {
-                QuantityDesignation.ONE -> "$value час"
-                QuantityDesignation.FEW -> "$value часа"
-                QuantityDesignation.LOT -> "$value часов"
-            }
-        }
-    },
-    DAY {
-        override fun plural(value: Int): String {
-            return when(QuantityDesignation.ONE.getValue(value.toLong())) {
-                QuantityDesignation.ONE -> "$value день"
-                QuantityDesignation.FEW -> "$value дня"
-                QuantityDesignation.LOT -> "$value дней"
-            }
-        }
-    };
-
-    abstract fun plural(value: Int): String
-
+    SECOND,
+    MINUTE,
+    HOUR,
+    DAY,
 }

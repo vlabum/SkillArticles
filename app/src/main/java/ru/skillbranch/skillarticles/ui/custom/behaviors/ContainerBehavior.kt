@@ -28,13 +28,9 @@ class ContainerBehavior() : AppBarLayout.ScrollingViewBehavior() {
             val bottombar = parent.children.find { it is BottomNavigationView }
             val bh = if (bottombar?.isVisible == true) bottombar.measuredHeight else 0
             val height = View.MeasureSpec.getSize(parentHeightMeasureSpec) - ah - bh
-            parent.onMeasureChild(
-                child,
-                parentWidthMeasureSpec,
-                widthUsed,
-                View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY),
-                heightUsed
-            )
+            parent.onMeasureChild(child,
+                parentWidthMeasureSpec, widthUsed,
+                View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY), heightUsed)
             return true
         }
         //if scrolling measure parent

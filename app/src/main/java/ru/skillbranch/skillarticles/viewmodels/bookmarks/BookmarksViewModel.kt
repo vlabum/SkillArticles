@@ -37,11 +37,11 @@ class BookmarksViewModel(handle: SavedStateHandle) :
     val listData = Transformations.switchMap(state) {
         when {
             it.isSearch && !it.searchQuery.isNullOrBlank() -> buildPagedList(
-                repository.searchArticlesBookmark(
+                repository.searchBookmarkedArticles(
                     it.searchQuery
                 )
             )
-            else -> buildPagedList(repository.allArticlesBookmark())
+            else -> buildPagedList(repository.allBookmarked())
         }
     }
 
@@ -78,7 +78,7 @@ class BookmarksViewModel(handle: SavedStateHandle) :
     //вызывается каждый раз, конда мы доскроливаем до конца нашего DataSource
     private fun itemAtEndHandle(lastLoadArticle: ArticleItemData) {
         viewModelScope.launch(Dispatchers.IO) {
-            val items = repository.findArticlesByRangeBookmark(
+            val items = repository.findBookmarkArticles(
                 start = lastLoadArticle.id.toInt().inc(),
                 size = listConfig.pageSize
             )
@@ -104,7 +104,7 @@ class BookmarksViewModel(handle: SavedStateHandle) :
         notify(Notify.TextMessage("Storage is empty"))
         viewModelScope.launch(Dispatchers.IO) {
             val items =
-                repository.findArticlesByRangeBookmark(
+                repository.findBookmarkArticles(
                     start = 0,
                     size = listConfig.initialLoadSizeHint
                 )

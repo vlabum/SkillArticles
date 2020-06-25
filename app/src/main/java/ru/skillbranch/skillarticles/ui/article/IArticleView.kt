@@ -6,9 +6,8 @@ interface IArticleView {
      * показать search bar
      */
     fun showSearchBar()
-
     /**
-     * скрыть searchBar
+     * скрыть searchbar
      */
     fun hideSearchBar()
 }

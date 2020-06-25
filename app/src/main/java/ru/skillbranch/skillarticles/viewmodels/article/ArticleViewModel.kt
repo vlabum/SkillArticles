@@ -1,5 +1,5 @@
 package ru.skillbranch.skillarticles.viewmodels.article
-
+//processed
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
 import androidx.paging.LivePagedListBuilder
@@ -32,7 +32,7 @@ class ArticleViewModel(
     private var clearContent: String? = null
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val listConfig by lazy {
+    private val listConfig by lazy {
         PagedList.Config.Builder()
             .setEnablePlaceholders(true)
             .setPageSize(5)
@@ -140,7 +140,7 @@ class ArticleViewModel(
             Notify.ActionMessage(
                 "Don`t like it anymore", //message
                 "No, still like it", //action label on snackbar
-                toggleLike //handler function, if press "No, still like it" on snackbar, then toggle again
+                toggleLike // handler function , if press "No, still like it" on snackbar, then toggle again
             )
         }
 
@@ -148,28 +148,28 @@ class ArticleViewModel(
     }
 
 
-    //
+    //not implemented
     override fun handleShare() {
         val msg = "Share is not implemented"
         notify(Notify.ErrorMessage(msg, "OK", null))
     }
 
 
-    //
+    //session state
     override fun handleToggleMenu() {
         updateState { it.copy(isShowMenu = !it.isShowMenu) }
     }
 
     override fun handleSearchMode(isSearch: Boolean) {
-        updateState { it.copy(isSearch = !it.isSearch, isShowMenu = false, searchPosition = 0) }
+        updateState { it.copy(isSearch = isSearch, isShowMenu = false, searchPosition = 0) }
     }
 
     override fun handleSearch(query: String?) {
         query ?: return
-        if (clearContent == null && currentState.content.isNotEmpty())
-            clearContent = currentState.content.clearContent()
+        if (clearContent == null && currentState.content.isNotEmpty()) clearContent =
+            currentState.content.clearContent()
 
-        val result = clearContent //currentState.content
+        val result = clearContent
             .indexesOf(query)
             .map { it to it + query.length }
         updateState { it.copy(searchQuery = query, searchResults = result, searchPosition = 0) }
@@ -193,9 +193,9 @@ class ArticleViewModel(
             return
         }
         updateState { it.copy(commentText = comment) }
-        if (!currentState.isAuth)
+        if (!currentState.isAuth) {
             navigate(NavigationCommand.StartLogin())
-        else {
+        } else {
             viewModelScope.launch {
                 repository.sendComment(
                     articleId,
@@ -258,7 +258,7 @@ data class ArticleState(
     val isBigText: Boolean = false, //шрифт увеличен
     val isDarkMode: Boolean = false, //темный режим
     val isSearch: Boolean = false, //режим поиска
-    val searchQuery: String? = null, //поисковый запрос
+    val searchQuery: String? = null, // поисковы запрос
     val searchResults: List<Pair<Int, Int>> = emptyList(), //результаты поиска (стартовая и конечная позиции)
     val searchPosition: Int = 0, //текущая позиция найденного результата
     val shareLink: String? = null, //ссылка Share
