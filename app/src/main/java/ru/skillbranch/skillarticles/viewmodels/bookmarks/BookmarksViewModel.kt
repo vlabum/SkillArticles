@@ -126,8 +126,8 @@ class BookmarksViewModel(handle: SavedStateHandle) :
     }
 
     fun handleToggleBookmark(id: String, isChecked: Boolean) {
-        repository.updateBookmark(id, isChecked)
-        updateState { it.copy(isLoading = true) }
+        repository.updateBookmark(id, !isChecked)
+        listData.value?.dataSource?.invalidate()
     }
 
 }
