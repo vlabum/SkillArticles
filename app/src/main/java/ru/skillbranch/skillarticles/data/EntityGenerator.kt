@@ -1,7 +1,7 @@
 package ru.skillbranch.skillarticles.data
 
+import ru.skillbranch.skillarticles.data.local.entities.ArticleItem
 import ru.skillbranch.skillarticles.data.models.ArticleData
-import ru.skillbranch.skillarticles.data.models.ArticleItemData
 import ru.skillbranch.skillarticles.data.models.CommentItemData
 import ru.skillbranch.skillarticles.data.models.User
 import ru.skillbranch.skillarticles.extensions.TimeUnits
@@ -10,7 +10,7 @@ import java.util.*
 import kotlin.random.Random.Default.nextBoolean
 
 object EntityGenerator {
-    fun generateArticle(article: ArticleItemData): ArticleData = ArticleData(
+    fun generateArticle(article: ArticleItem): ArticleData = ArticleData(
         id = article.id,
         title = article.title,
         category = article.category,
@@ -30,13 +30,13 @@ object EntityGenerator {
         date = article.date
     )
 
-    fun generateArticleItems(count: Int): List<ArticleItemData> =
+    fun generateArticleItems(count: Int): List<ArticleItem> =
         Array(count) { articleItems[it % 6] }
             .toList()
             .mapIndexed { index, article ->
                 article.copy(
                     id = "$index",
-                    commentCount = (10..50).random(),
+                    commentCount = (10..40).random(),
                     readDuration = (2..10).random(),
                     likeCount = (15..100).random(),
                     date = Date().add(-index, TimeUnits.DAY)
@@ -67,9 +67,9 @@ object EntityGenerator {
             acc
         }
 
-    fun createArticleItem(articleId: String): ArticleItemData {
+    fun createArticleItem(articleId: String): ArticleItem {
         return articleItems[articleId.toInt() % 6].copy(id = articleId,
-            commentCount = (10..50).random(),
+            commentCount = (10..40).random(),
             readDuration = (2..10).random(),
             likeCount = (15..100).random())
     }
@@ -78,7 +78,7 @@ object EntityGenerator {
 
 private val articleItems = Array(6) {
     when (it) {
-        1 -> ArticleItemData(
+        1 -> ArticleItem(
             id = "0",
             categoryIcon = "https://skill-branch.ru/img/mail/bot/android-category.png",
             category = "Android",
@@ -86,10 +86,11 @@ private val articleItems = Array(6) {
             description = "LiveData and the Fragment lifecycle",
             author = "Christophe Beyls",
             authorAvatar = "https://miro.medium.com/fit/c/96/96/0*zhOjC9mtKiAzmBQo.png",
-            poster = "https://miro.medium.com/max/800/1*Cd_1M-LJ46t6xo79LfMGVw.jpeg"
+            poster = "https://miro.medium.com/max/800/1*Cd_1M-LJ46t6xo79LfMGVw.jpeg",
+            categoryId = "0"
         )
 
-        2 -> ArticleItemData(
+        2 -> ArticleItem(
             id = "0",
             categoryIcon = "https://skill-branch.ru/img/mail/bot/android-category.png",
             category = "Android",
@@ -97,10 +98,11 @@ private val articleItems = Array(6) {
             description = "Article describing usage of Safe args Gradle plugin with the Navigation Architecture Component and current support for argument types",
             author = "Veronika Petruskova",
             authorAvatar = "https://miro.medium.com/fit/c/96/96/1*VSq5CqY3y1Bb4CLK83ZIuw.png",
-            poster = "https://miro.medium.com/max/1920/1*u4uWVOpqFCR1gGpJTewhhA.jpeg"
+            poster = "https://miro.medium.com/max/1920/1*u4uWVOpqFCR1gGpJTewhhA.jpeg",
+            categoryId = "0"
             )
 
-        3 -> ArticleItemData(
+        3 -> ArticleItem(
             id = "0",
             categoryIcon = "https://skill-branch.ru/img/mail/bot/android-category.png",
             category = "Android",
@@ -108,10 +110,11 @@ private val articleItems = Array(6) {
             description = "Google introduced Android architecture components which are basically a collection of libraries that facilitate robust design, testable",
             author = "Sagar Begale",
             authorAvatar = "https://miro.medium.com/fit/c/96/96/2*0yEmon3hJKcxVIXjSJeR3Q.jpeg",
-            poster = "https://miro.medium.com/max/1600/0*BDD1KysQZFMeH3pc.png"
+            poster = "https://miro.medium.com/max/1600/0*BDD1KysQZFMeH3pc.png",
+            categoryId = "0"
             )
 
-        4 -> ArticleItemData(
+        4 -> ArticleItem(
             id = "0",
             categoryIcon = "https://skill-branch.ru/img/mail/bot/android-category.png",
             category = "Android",
@@ -119,10 +122,11 @@ private val articleItems = Array(6) {
             description = "How to integrate Navigation Architecture Component in your app in different use cases",
             author = "Veronika Petruskova",
             authorAvatar = "https://miro.medium.com/fit/c/96/96/1*VSq5CqY3y1Bb4CLK83ZIuw.png",
-            poster = "https://miro.medium.com/max/6000/0*QocVcbGZ4MeJbTCZ"
+            poster = "https://miro.medium.com/max/6000/0*QocVcbGZ4MeJbTCZ",
+            categoryId = "0"
         )
 
-        5 -> ArticleItemData(
+        5 -> ArticleItem(
             id = "0",
             categoryIcon = "https://skill-branch.ru/img/mail/bot/android-category.png",
             category = "Android",
@@ -130,9 +134,10 @@ private val articleItems = Array(6) {
             description = "Initialization, passing arguments, and saved state",
             author = "Adam Hurwitz",
             authorAvatar = "https://miro.medium.com/fit/c/96/96/2*0yEmon3hJKcxVIXjSJeR3Q.jpeg",
-            poster = "https://miro.medium.com/max/4011/1*voHEHCw6ZWrWGMmZ_xtpBQ.png"
+            poster = "https://miro.medium.com/max/4011/1*voHEHCw6ZWrWGMmZ_xtpBQ.png",
+            categoryId = "0"
         )
-        else -> ArticleItemData(
+        else -> ArticleItem(
             id = "0",
             categoryIcon = "https://skill-branch.ru/img/mail/bot/android-category.png",
             category = "Android",
@@ -140,7 +145,8 @@ private val articleItems = Array(6) {
             authorAvatar = "https://miro.medium.com/fit/c/96/96/1*z2H2HkOuv5bAOuIvUUN-5w.jpeg",
             title = "Drawing a rounded corner background on text",
             description = "Let’s say that we need to draw a **rounded** corner background on text, supporting the following cases",
-            poster = "https://miro.medium.com/max/4209/1*GHjquSrfS6bNSjr_rsDSJw.png"
+            poster = "https://miro.medium.com/max/4209/1*GHjquSrfS6bNSjr_rsDSJw.png",
+            categoryId = "0"
             )
     }
 }.toList()

@@ -1,6 +1,5 @@
 package ru.skillbranch.skillarticles.viewmodels.bookmarks
 
-import android.util.Log
 import androidx.lifecycle.*
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.Transformations
@@ -9,12 +8,11 @@ import androidx.paging.PagedList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import ru.skillbranch.skillarticles.data.models.ArticleItemData
+import ru.skillbranch.skillarticles.data.local.entities.ArticleItem
 import ru.skillbranch.skillarticles.data.repositories.ArticleStrategy
 import ru.skillbranch.skillarticles.data.repositories.ArticlesDataFactory
 import ru.skillbranch.skillarticles.data.repositories.ArticlesRepository
 import ru.skillbranch.skillarticles.viewmodels.articles.ArticlesBoundaryCallback
-import ru.skillbranch.skillarticles.viewmodels.articles.ArticlesViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
@@ -47,15 +45,15 @@ class BookmarksViewModel(handle: SavedStateHandle) :
 
     fun observeList(
         owner: LifecycleOwner,
-        onChange: (list: PagedList<ArticleItemData>) -> Unit
+        onChange: (list: PagedList<ArticleItem>) -> Unit
     ) {
         listData.observe(owner, Observer { onChange(it) })
     }
 
     fun buildPagedList(
         dataFactory: ArticlesDataFactory
-    ): LiveData<PagedList<ArticleItemData>> {
-        val builder = LivePagedListBuilder<Int, ArticleItemData>(
+    ): LiveData<PagedList<ArticleItem>> {
+        val builder = LivePagedListBuilder<Int, ArticleItem>(
             dataFactory,
             listConfig
         )
@@ -76,7 +74,7 @@ class BookmarksViewModel(handle: SavedStateHandle) :
     }
 
     //вызывается каждый раз, конда мы доскроливаем до конца нашего DataSource
-    private fun itemAtEndHandle(lastLoadArticle: ArticleItemData) {
+    private fun itemAtEndHandle(lastLoadArticle: ArticleItem) {
         viewModelScope.launch(Dispatchers.IO) {
             val items = repository.findBookmarkArticles(
                 start = lastLoadArticle.id.toInt().inc(),
@@ -141,14 +139,14 @@ data class BookmarksState(
 //для уведомлений о том, что в нашем dataSource закончились данные, типо доскролили до самого низа
 class BookmarksBoundaryCallback(
     private val zeroLoadingHandle: () -> Unit,
-    private val itemAtEndHandle: (ArticleItemData) -> Unit
-) : PagedList.BoundaryCallback<ArticleItemData>() {
+    private val itemAtEndHandle: (ArticleItem) -> Unit
+) : PagedList.BoundaryCallback<ArticleItem>() {
     override fun onZeroItemsLoaded() {
         //Storage is empty
         zeroLoadingHandle()
     }
 
-    override fun onItemAtEndLoaded(itemAtEnd: ArticleItemData) {
+    override fun onItemAtEndLoaded(itemAtEnd: ArticleItem) {
         //user scroll down -> need load more items
         itemAtEndHandle(itemAtEnd)
     }
