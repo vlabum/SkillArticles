@@ -3,11 +3,8 @@ package ru.skillbranch.skillarticles.data.local
 import androidx.room.*
 import ru.skillbranch.skillarticles.App
 import ru.skillbranch.skillarticles.BuildConfig
-import ru.skillbranch.skillarticles.data.local.dao.ArticleCountsDao
-import ru.skillbranch.skillarticles.data.local.dao.ArticlesDao
-import ru.skillbranch.skillarticles.data.local.entities.Article
-import ru.skillbranch.skillarticles.data.local.entities.ArticleCounts
-import ru.skillbranch.skillarticles.data.local.entities.ArticleItem
+import ru.skillbranch.skillarticles.data.local.dao.*
+import ru.skillbranch.skillarticles.data.local.entities.*
 
 object DbManager {
     val db: AppDb = Room.databaseBuilder(
@@ -18,10 +15,17 @@ object DbManager {
 }
 
 @Database(
-    entities = [Article::class, ArticleCounts::class],
+    entities = [Article::class,
+        ArticleCounts::class,
+        Category::class,
+        ArticlePersonalInfo::class,
+        Tag::class,
+        ArticleTagXRef::class,
+        ArticleContent::class
+    ],
     version = AppDb.DATABASE_VERSION,
     exportSchema = false,
-    views = [ArticleItem::class]
+    views = [ArticleItem::class, ArticleFull::class]
 )
 @TypeConverters(DateConverter::class)
 abstract class AppDb : RoomDatabase() {
@@ -32,4 +36,8 @@ abstract class AppDb : RoomDatabase() {
 
     abstract fun articlesDao(): ArticlesDao
     abstract fun articleCountsDao(): ArticleCountsDao
+    abstract fun categoriesDao(): CategoriesDao
+    abstract fun articlePersonalInfos(): ArticlePersonalInfosDao
+    abstract fun tagsDao(): TagsDao
+    abstract fun articleContentsDao(): ArticleContentsDao
 }

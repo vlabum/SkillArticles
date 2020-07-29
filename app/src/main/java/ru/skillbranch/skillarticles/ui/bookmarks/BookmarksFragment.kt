@@ -23,13 +23,13 @@ import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 import ru.skillbranch.skillarticles.viewmodels.bookmarks.BookmarksState
 import ru.skillbranch.skillarticles.viewmodels.bookmarks.BookmarksViewModel
 
-class BookmarksFragment : BaseFragment<BookmarksViewModel>() {
+class BookmarksFragment : BaseFragment<ArticlesViewModel>() {
 
     companion object {
         fun newInstance() = BookmarksFragment()
     }
 
-    override val viewModel: BookmarksViewModel by viewModels()
+    override val viewModel: ArticlesViewModel by viewModels()
     override val layout: Int = R.layout.fragment_bookmarks
     override val binding: BookmarksBinding by lazy { BookmarksBinding() }
 
@@ -47,12 +47,12 @@ class BookmarksFragment : BaseFragment<BookmarksViewModel>() {
 
     val articlesAdapter = ArticlesAdapter { item, isToggleBookmark ->
             if (isToggleBookmark) {
-                viewModel.handleToggleBookmark(item.id, item.isBookmark)
+                viewModel.handleToggleBookmark(item.id)
             } else {
                 val action = ArticlesFragmentDirections.actionToPageArticle(
                     item.id,
                     item.author,
-                    item.authorAvatar,
+                    item.authorAvatar!!,
                     item.category,
                     item.categoryIcon,
                     item.poster,
