@@ -33,7 +33,7 @@ object ArticleRepository : IArticleRepository {
     private val network = NetworkDataHolder
     private val preferences = PrefManager
     private val articlesDao = db.articlesDao()
-    private val articlePersonalDao = db.articlePersonalInfos()
+    private val articlePersonalDao = db.articlePersonalInfosDao()
     private val articleCountsDao = db.articleCountsDao()
     private val articleContentDao = db.articleContentsDao()
 

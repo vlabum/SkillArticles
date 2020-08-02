@@ -32,7 +32,7 @@ object ArticlesRepository : IArticlesRepository {
     private val articleCountsDao = db.articleCountsDao()
     private val categoriesDao = db.categoriesDao()
     private val tagsDao = db.tagsDao()
-    private val articlePersonalDao = db.articlePersonalInfos()
+    private val articlePersonalDao = db.articlePersonalInfosDao()
 
     override fun loadArticlesFromNetwork(start: Int, size: Int): List<ArticleRes> =
         network.findArticlesItem(start, size)
